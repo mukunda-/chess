@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "funtime"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+click = "^8.1.7"
+tqdm = "^4.66.4"
+tables = "^3.9.2"
+numpy = "~1.26.4"
+python-chess = "^1.999"
+polars = "^1.4.0"
+pyquery = "^2.0.0"
+
+
+[tool.poetry.group.dev.dependencies]
+jupyterlab = "^4.2.4"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
