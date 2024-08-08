@@ -245,5 +245,4 @@ $(BUILD_PATH)/%.o: $(SRC_PATH)/%.$(SRC_EXT)
 	@echo -en "\t Compile time: "
 	@$(END_TIME)
 
-include Makefile.data
-
+include data.mk
