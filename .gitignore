@@ -192,3 +192,4 @@ data/
 .depend
 external/
 bin/
+hello
