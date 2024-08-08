@@ -1,17 +1,11 @@
-DATA_DIR=data/lichess_db_standard_rated_2024-06
-SRCS=$(shell find $(DATA_DIR) -name '*.epd')
-
-ENDGAMES := $(SRCS:.epd=.endgames)
 ECO_CODES = data/openings/a.tsv data/openings/b.tsv data/openings/c.tsv data/openings/d.tsv data/openings/e.tsv
 ECO_CODES_ALL = data/openings/eco.json
 BOARD_IMAGES_DIR = data/openings/images
 
-all: endgames openings
+data: openings
 
 %.endgames: %.epd
 	./bin/release/hello classify-endgames -o $@ $< 
-
-endgames: $(ENDGAMES)
 
 $(ECO_CODES): 
 	wget https://raw.githubusercontent.com/lichess-org/chess-openings/master/$(notdir $@) -O $@
@@ -27,7 +21,3 @@ $(BOARD_IMAGES_DIR): $(ECO_CODES_ALL)
 	python main.py board-images -o $(BOARD_IMAGES_DIR) $<
 
 openings: $(ECO_CODES_ALL)
-
-clean:
-	@echo rm $(ENDGAMES)
-	@echo rm $(ECO_CODES)
