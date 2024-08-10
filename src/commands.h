@@ -17,5 +17,5 @@ int cmd_last_line(std::ostream& out);
 int cmd_count_time_controls(std::ostream& out);
 int cmd_stats(std::istream& in, std::ostream& out);
 int cmd_endgame_by_cohort(std::istream &in, std::ostream &out);
+int cmd_parse_pgns(std::istream &in, std::ostream &out);
 int cmd_group_by_two(std::istream &in, std::ostream &out);
-int cmd_classify_endgames(std::vector<std::shared_ptr<std::ifstream>> in_files, std::ostream &out);

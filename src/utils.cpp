@@ -8,9 +8,12 @@
 #include <fstream>
 #include <map>
 #include <ranges>
+#include <cctype>
+
+#include "debug.h"
 
 // Define the rating boundaries with Lichess values as keys
-std::map<int, std::string> rating_boundaries = {
+static std::map<int, std::string> rating_boundaries = {
     {1035, "0-300"},     {1100, "300-400"},   {1165, "400-500"},
     {1225, "500-600"},   {1290, "600-700"},   {1350, "700-800"},
     {1415, "800-900"},   {1475, "900-1000"},  {1575, "1000-1100"},
@@ -100,6 +103,7 @@ std::string get_cohort_by_lichess(const std::string& lichess_rating) {
   return get_cohort_by_lichess(parse_rating(lichess_rating));
 }
 
+
 // https://lichess.org/faq#time-controls
 TimeControl get_time_control(const std::string& time_control_str) {
   if (time_control_str == "-") {
@@ -117,19 +121,19 @@ TimeControl get_time_control(const std::string& time_control_str) {
 
   int game_time = initial_s + (increment_s * 40);
 
-  if (game_time <= 29) {
+  if (game_time < 29) {
     return UltraBullet;
   }
 
-  if (game_time <= 179) {
+  if (game_time < 179) {
     return Bullet;
   }
 
-  if (game_time <= 479) {
+  if (game_time < 479) {
     return Blitz;
   }
 
-  if (game_time <= 1499) {
+  if (game_time < 1499) {
     return Rapid;
   }
 
@@ -138,10 +142,6 @@ TimeControl get_time_control(const std::string& time_control_str) {
   }
 
   return UnknownTimeControl;
-}
-
-void transform_upper(std::string& str) {
-  std::transform(str.begin(), str.end(), str.begin(), ::toupper);
 }
 
 std::string classify_endgame(const std::string& fen) {
@@ -155,16 +155,13 @@ std::string classify_endgame(const std::string& fen) {
     counts[c] += 1;
   }
 
-  std::vector<char> pieces = {'K', 'B', 'N', 'R', 'Q', 'P', 'k', 'b', 'n', 'r', 'q', 'p'};
   int total_pieces = 0;
-  std::ostringstream os;
-  for (auto& piece : pieces) {
+  std::string out;
+  for (auto& piece : {'K', 'B', 'N', 'R', 'Q', 'P', 'k', 'b', 'n', 'r', 'q', 'p'}) {
     int count = counts[piece];
-    std::string piece_upper(piece, 1);
-    transform_upper(piece_upper);
 
     for (int j = 0; j < count; j++) {
-      os << piece;
+      out += (char)toupper(piece);
     }
 
     total_pieces += count;
@@ -173,10 +170,7 @@ std::string classify_endgame(const std::string& fen) {
     }
   }
 
-  std::string result = os.str();
-  transform_upper(result);
-
-  return result;
+  return out;
 }
 
 void print_row(std::ostream& out, const std::vector<std::string> &row) {

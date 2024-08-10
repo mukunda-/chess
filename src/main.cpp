@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "commands.h"
+#include "endgames.h"
 
 std::string get_option(const int argc, const char *argv[],
                        const std::string &option);
@@ -40,9 +41,6 @@ int main(const int argc, const char *argv[]) {
     in_files.push_back(in_file);
   }
 
-  if (command == "classify-endgames") {
-    cmd_classify_endgames(in_files, out_file);
-  } else {
     for (auto &in_file : in_files) {
       if (command == "count-time-controls") {
         cmd_count_time_controls(out_file);
@@ -52,6 +50,8 @@ int main(const int argc, const char *argv[]) {
         cmd_endgame_by_cohort(*in_file, out_file);
       } else if (command == "group-by-2") {
         cmd_group_by_two(*in_file, out_file);
+      } else if (command == "classify-endgames") {
+        cmd_classify_endgames(*in_file, out_file);
       } else {
         std::cerr << "Command not found." << std::endl;
         return 1;
@@ -59,7 +59,6 @@ int main(const int argc, const char *argv[]) {
 
       in_file->close();
     }
-  }
 
   out_file.close();
 

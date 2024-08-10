@@ -10,11 +10,65 @@
 
 #include "utils.h"
 
+/*
+const std::vector<std::string> header_names = {
+    "White",       "WhiteElo",
+    "WhiteFideId", "WhiteRatingDiff",
+    "WhiteTeam",   "WhiteTitle",
+    "Black",       "BlackElo",
+    "BlackFideId", "BlackRatingDiff",
+    "BlackTeam",   "BlackTitle",
+    "Annotator",   "Board",
+    "Date",        "ECO",
+    "Event",       "Opening",
+    "Result",      "Round",
+    "Site",        "Termination",
+    "TimeControl", "UTCDate",
+    "UTCTime",     "PGN",
+};
+*/
+
 void print_col_indexes(std::ostream &out, std::vector<std::string> row) {
   for (std::size_t idx = 0; idx < row.size(); idx++) {
     out << idx << " " << row[idx] << std::endl;
   }
 }
+
+/*
+int cmd_parse_pgns(std::istream &in, std::ostream &out) {
+  const std::vector<std::string> header_names = {
+    "White",
+    "WhiteElo",
+    "WhiteFideId",
+    "WhiteRatingDiff",
+    "WhiteTeam",
+    "WhiteTitle",
+    "Black",
+    "BlackElo",
+    "BlackFideId",
+    "BlackRatingDiff",
+    "BlackTeam",
+    "BlackTitle",
+    "Annotator",
+    "Board",
+    "Date",
+    "ECO",
+    "Event",
+    "Opening",
+    "Result",
+    "Round",
+    "Site",
+    "Termination",
+    "TimeControl",
+    "UTCDate",
+    "UTCTime",
+    "PGN",
+  }
+
+  int pgn_idx = get_header_index(header_names);
+  std::cout << pgn_idx << std::endl;
+}
+*/
 
 int cmd_stats(std::istream &in, std::ostream &out) {
   std::size_t count = 0;
@@ -67,6 +121,7 @@ int cmd_group_by_two(std::istream &in, std::ostream &out) {
   return 0;
 }
 
+/*
 int cmd_classify_endgames(std::vector<std::shared_ptr<std::ifstream>> in_files, std::ostream &out) {
   const int fen_idx = 0;
 
@@ -87,6 +142,7 @@ int cmd_classify_endgames(std::vector<std::shared_ptr<std::ifstream>> in_files, 
 
   return 0;
 }
+*/
 
 
 int cmd_endgame_by_cohort(std::istream &in, std::ostream &out) {
