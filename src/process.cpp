@@ -31,62 +31,6 @@ std::string to_bits(std::uint64_t value) {
   return bits.to_string();
 }
 
-struct EndgameClassComp {
-  chess::PieceType piece_type;
-  chess::Color color;
-  char out;
-};
-
-std::string classify_endgame(const chess::Board &board) {
-  std::map<char, int> counts;
-
-  constexpr EndgameClassComp endgameComps[12] = {
-      {chess::PieceType::KING, chess::Color::WHITE, 'K'},
-      {chess::PieceType::BISHOP, chess::Color::WHITE, 'B'},
-      {chess::PieceType::KNIGHT, chess::Color::WHITE, 'N'},
-      {chess::PieceType::ROOK, chess::Color::WHITE, 'R'},
-      {chess::PieceType::QUEEN, chess::Color::WHITE, 'Q'},
-      {chess::PieceType::PAWN, chess::Color::WHITE, 'P'},
-      {chess::PieceType::KING, chess::Color::BLACK, 'K'},
-      {chess::PieceType::BISHOP, chess::Color::BLACK, 'B'},
-      {chess::PieceType::KNIGHT, chess::Color::BLACK, 'N'},
-      {chess::PieceType::ROOK, chess::Color::BLACK, 'R'},
-      {chess::PieceType::QUEEN, chess::Color::BLACK, 'Q'},
-      {chess::PieceType::PAWN, chess::Color::BLACK, 'P'}};
-  constexpr std::array<uint64_t, 2> square_masks = {LIGHT_SQUARES_MASK,
-                                                    DARK_SQUARES_MASK};
-
-  std::string out;
-  int total_pieces = 0;
-  for (const auto &comp : endgameComps) {
-    const auto bitboard = board.pieces(comp.piece_type, comp.color);
-
-    auto count = bitboard.count();
-    total_pieces += count;
-    if (total_pieces > 5) {
-      return "";
-    }
-
-    for (int j = 0; j < count; j++) {
-      out += comp.out;
-    }
-  }
-
-  std::string out_bishops;
-  for (const auto color : {chess::Color::WHITE, chess::Color::BLACK}) {
-    const auto bitboard = board.pieces(chess::PieceType::BISHOP, color);
-    for (const uint64_t square_mask : square_masks) {
-      out_bishops += std::to_string((bitboard & square_mask).count());
-    }
-  }
-
-  if (out_bishops != "0000") {
-    out += "_" + out_bishops;
-  }
-
-  return out;
-}
-
 struct Board {
   std::uint64_t white_bishops;
   std::uint64_t white_rooks;
@@ -272,9 +216,9 @@ void commit(pqxx::connection &conn, const std::vector<Game> &todo) {
   DEBUG_TIME_END(commit);
 }
 
-class MyVisitor {
+class MyVisitor : public chess::pgn::Visitor {
 private:
-  std::ifstream &_in;
+  std::ostream &_out;
   chess::Board _board;
   std::map<std::string, std::string> _headers;
   std::vector<Game> _todo;
@@ -282,7 +226,8 @@ private:
   pqxx::connection &_conn;
 
 public:
-  MyVisitor(std::ifstream &in, pqxx::connection &conn) : _in(in), _conn(conn) {}
+  MyVisitor(std::ostream &out, pqxx::connection &conn)
+      : _out(out), _conn(conn) {}
 
   void startPgn() {
     _board = chess::Board(
@@ -290,38 +235,63 @@ public:
     _game = Game{};
   }
 
-  void headers(std::vector<std::string> row) {
-    int column = 0;
-    _game.white = row.at(column++);
-    _game.white_elo = row.at(column++);
-    _game.white_fide_id = row.at(column++);
-    _game.white_rating_diff = row.at(column++);
-    _game.white_team = row.at(column++);
-    _game.white_title = row.at(column++);
-    _game.black = row.at(column++);
-    _game.black_elo = row.at(column++);
-    _game.black_fide_id = row.at(column++);
-    _game.black_rating_diff = row.at(column++);
-    _game.black_team = row.at(column++);
-    _game.black_title = row.at(column++);
-    _game.annotator = row.at(column++);
-    _game.board = row.at(column++);
-    _game.date = row.at(column++);
-    _game.eco = row.at(column++);
-    _game.event = row.at(column++);
-    _game.opening = row.at(column++);
-    _game.result = row.at(column++);
-    _game.round = row.at(column++);
-    _game.site = row.at(column++);
-    _game.termination = row.at(column++);
-    _game.time_control = row.at(column++);
-    _game.utc_date = row.at(column++);
-    _game.utc_time = row.at(column++);
-  }
+  void header(std::string_view key, std::string_view value) {
+    if (key == "White") {
+      _game.white = value;
+    } else if (key == "WhiteElo") {
+      _game.white_elo = value;
+    } else if (key == "WhiteFideId") {
+      _game.white_fide_id = value;
+    } else if (key == "WhiteRatingDiff") {
+      _game.white_rating_diff = value;
+    } else if (key == "WhiteTeam") {
+      _game.white_team = value;
+    } else if (key == "WhiteTitle") {
+      _game.white_title = value;
+    } else if (key == "Black") {
+      _game.black = value;
+    } else if (key == "BlackElo") {
+      _game.black_elo = value;
+    } else if (key == "BlackFideId") {
+      _game.black_fide_id = value;
+    } else if (key == "BlackRatingDiff") {
+      _game.black_rating_diff = value;
+    } else if (key == "BlackTeam") {
+      _game.black_team = value;
+    } else if (key == "BlackTitle") {
+      _game.black_title = value;
+    } else if (key == "Annotator") {
+      _game.annotator = value;
+    } else if (key == "Board") {
+      _game.board = value;
+    } else if (key == "Date") {
+      _game.date = value;
+    } else if (key == "ECO") {
+      _game.eco = value;
+    } else if (key == "Event") {
+      _game.event = value;
+    } else if (key == "Opening") {
+      _game.opening = value;
+    } else if (key == "Result") {
+      _game.result = value;
+    } else if (key == "Round") {
+      _game.round = value;
+    } else if (key == "Site") {
+      _game.site = value;
+    } else if (key == "Termination") {
+      _game.termination = value;
+    } else if (key == "TimeControl") {
+      _game.time_control = value;
+    } else if (key == "UTCDate") {
+      _game.utc_date = value;
+    } else if (key == "UTCTime") {
+      _game.utc_time = value;
+    }
+  };
 
   void startMoves() {}
 
-  void move(std::string_view comment) {
+  void move(std::string_view san, std::string_view comment) {
     _game.ply++;
 
     Board db_board = {
@@ -412,7 +382,7 @@ void prepare_insert_continuations(pqxx::connection &conn) {
       "$2, $3) on conflict (game_id, board_hash, move_san) do nothing");
 }
 
-int cmd_classify_endgames(std::ifstream &in, std::ostream &out) {
+int cmd_process_games(std::ifstream &in, std::ostream &out) {
   const char *dbUsername = std::getenv("DB_USERNAME");
   const char *dbPassword = std::getenv("DB_PASSWORD");
   const char *dbHost = std::getenv("DB_HOST");
@@ -439,7 +409,10 @@ int cmd_classify_endgames(std::ifstream &in, std::ostream &out) {
 
     std::cout << "Connected to database successfully." << std::endl;
 
-    auto vis = std::make_unique<MyVisitor>(in, conn);
+    auto vis = std::make_unique<MyVisitor>(out, conn);
+
+    chess::pgn::StreamParser parser(in);
+    parser.readGames(*vis);
 
     vis->flush();
 

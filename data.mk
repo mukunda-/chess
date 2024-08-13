@@ -1,6 +1,7 @@
 ECO_CODES = data/openings/a.tsv data/openings/b.tsv data/openings/c.tsv data/openings/d.tsv data/openings/e.tsv
 ECO_CODES_ALL = data/openings/eco.json
 BOARD_IMAGES_DIR = data/openings/images
+COUNTS = data/lichess_db_standard_rated_2024-07/counts.txt
 
 data: openings
 

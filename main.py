@@ -1,12 +1,18 @@
 #!/usr/bin/env python
 
-import click
-from tqdm import tqdm
-
 import sys
 import re
 import io
 import os
+import uuid
+
+import click
+from click.utils import LazyFile
+from tqdm import tqdm
+
+import polars as pl
+
+import psycopg
 
 
 WHITE_WIN = "1-0"
@@ -14,10 +20,201 @@ DRAW = "1/2-1/2"
 BLACK_WIN = "0-1"
 INCOMPLETE = "*"
 
+HEADER_NAMES = [
+    "White",
+    "WhiteElo",
+    "WhiteFideId",
+    "WhiteRatingDiff",
+    "WhiteTeam",
+    "WhiteTitle",
+    "Black",
+    "BlackElo",
+    "BlackFideId",
+    "BlackRatingDiff",
+    "BlackTeam",
+    "BlackTitle",
+    "Annotator",
+    "Board",
+    "Date",
+    "ECO",
+    "Event",
+    "Opening",
+    "Result",
+    "Round",
+    "Site",
+    "Termination",
+    "TimeControl",
+    "UTCDate",
+    "UTCTime",
+    "PGN",
+]
+
+HEADERS_IDX = {name: idx for idx, name in enumerate(HEADER_NAMES)}
+
+HEADER_COLUMNS = [
+    "white",
+    "white_elo",
+    "white_fide_id",
+    "white_rating_diff",
+    "white_team",
+    "white_title",
+    "black",
+    "black_elo",
+    "black_fide_id",
+    "black_rating_diff",
+    "black_team",
+    "black_title",
+    "annotator",
+    "board",
+    "date",
+    "eco",
+    "event",
+    "opening",
+    "result",
+    "round",
+    "site",
+    "termination",
+    "time_control",
+    "utc_date",
+    "utc_time",
+    "pgn",
+]
+
+HEADER_TO_COLUMN = {HEADER_NAMES[idx]: col for idx, col in enumerate(HEADER_COLUMNS)}
+
+ALL_MOVE_COLUMNS = [f"ply_{ply}" for ply in range(30)]
+
+config = {k: os.environ[k] for k in ["DB_USERNAME", "DB_PASSWORD", "DB_NAME"]}
+
+
+def scan_tsv(sources, headers):
+    df = pl.scan_csv(sources, separator="\t", has_header=False, new_columns=headers)
+
+    return df
+
+
+def stream_columns(sources):
+    for source in sources:
+        with open(source, "r") as f:
+            for line in f:
+                line.strip()
+                columns = line.split("\t")
+                yield columns
+
 
 @click.group()
 def cli():
     pass
+
+
+def db_insert(cur, tbl_name, columns, values, *suffix):
+    placeholders = ["%s" for _ in columns]
+    insert = f"insert into {tbl_name} ({','.join(columns)}) values ({','.join(placeholders)}) {' '.join(suffix)}"
+    print(insert)
+    return cur.execute(insert, values)
+
+
+@cli.command("serve", help="read commands from stdin and write to database")
+@click.argument("in-file", type=click.File())
+def cli_serve(in_file):
+
+    db_uri = f"postgresql://{config['DB_USERNAME']}:{config['DB_PASSWORD']}@127.0.0.1:5432/{config['DB_NAME']}"
+    with psycopg.connect(db_uri, autocommit=True) as conn:
+        with conn.cursor() as cur:
+            game_ids = {}
+            cur.execute("select site, id from game_ids")
+            for site, game_id in cur.fetchall():
+                game_ids[site] = game_id
+
+            for line in tqdm(in_file):
+                work(game_ids, cur, line)
+
+
+def work(game_ids, cur, line):
+    command, *args = [s.strip() for s in line.split("\t")]
+    if command == "set_headers":
+        _, *kvs = args
+
+        headers = {
+            HEADER_TO_COLUMN[kvs[idx]]: kvs[idx + 1] for idx in range(0, len(kvs), 2)
+        }
+
+        columns = list(headers.keys())
+        values = list(headers.values())
+
+        conflict_update = ",".join(f"{c}=pgns.{c}" for c in columns)
+        db_insert(
+            cur,
+            "pgns",
+            columns,
+            values,
+            "on conflict(site) do update set",
+            conflict_update,
+            "returning id",
+        )
+
+        pgn_id = cur.fetchone()[0]
+
+        db_insert(
+            cur,
+            "games",
+            ["pgn_id"],
+            [pgn_id],
+            "on conflict(pgn_id) do update set pgn_id=games.pgn_id returning id",
+        )
+
+        game_id = cur.fetchone()[0]
+
+        game_ids[headers["site"]] = game_id
+
+    elif command == "set_moves":
+        site, *moves = args
+        game_id = game_ids[site]
+
+        # Create opening
+        opening_length = min(len(moves), 30)
+        opening_moves = moves[0:opening_length]
+
+        columns = ["bestie_code"] + ALL_MOVE_COLUMNS
+
+        move_values = opening_moves + [None for _ in range(max(0, 30 - len(moves)))]
+        values = [uuid.uuid4()] + move_values
+
+        db_insert(
+            cur,
+            "openings",
+            columns,
+            values,
+            "on conflict (",
+            ",".join(ALL_MOVE_COLUMNS),
+            ") do nothing",
+        )
+
+        where_clause = " and ".join(
+            [f"{c}=%s" for c in ALL_MOVE_COLUMNS[:opening_length]]
+            + [f"{c} is NULL" for c in ALL_MOVE_COLUMNS[opening_length:]]
+        )
+
+        cur.execute("select id from openings where " + where_clause, opening_moves)
+        opening_id = cur.fetchone()[0]
+
+        cur.execute(
+            "insert into games_openings (game_id, opening_id) values (%s, %s) on conflict(game_id, opening_id) do nothing",
+            [game_id, opening_id],
+        )
+
+    elif command == "set_endgames":
+        site, *endgames = args
+
+        game_id = game_ids[site]
+
+        columns = ["game_id", "endgame"]
+        placeholders = ["%s" for _ in columns]
+        data = [(game_id, endgame) for endgame in endgames]
+
+        insert = f"insert into endgames ({','.join(columns)}) values ({','.join(placeholders)}) on conflict(game_id, endgame) do nothing"
+
+        cur.executemany(insert, data)
 
 
 @cli.command("endgame-wdl", help="Calculate WDL per endgame classification")
@@ -32,8 +229,6 @@ def cli():
     nargs=-1,
 )
 def cli_endgames_wdl(pretty, out_path, in_paths):
-    import polars as pl
-
     df = pl.scan_csv(
         in_paths,
         has_header=False,
@@ -182,7 +377,7 @@ def cli_endgames_wdl(pretty, out_path, in_paths):
 @cli.command("board-images", help="build openings book")
 @click.argument("in-file", type=click.File())
 @click.option("-o", "--out", type=click.Path(exists=True), required=True)
-def openings_book_cli(in_file, out):
+def cli_board_images(in_file, out):
     import json
     import chess.pgn
     import chess.svg
@@ -208,102 +403,6 @@ def openings_book_cli(in_file, out):
         path = os.path.join(out, filename)
         with open(f"{path}.svg", "w") as f:
             f.write(svg)
-
-
-@cli.command("openings-deck", help="dump openings")
-@click.argument(
-    "in-file",
-    type=click.File(),
-    default=sys.stdin,
-)
-def openings_cli(in_file):
-    import chess.pgn
-    import chess.svg
-
-    openings: dict[str, list[str]] = {}
-    openings_filenames: dict[str, str] = {}
-    while True:
-        game = chess.pgn.read_game(in_file)
-        if game is None:
-            break
-
-        if "Opening" not in game.headers:
-            continue
-
-        opening = game.headers["Opening"]
-        if "Variation" in game.headers:
-            opening += f", {game.headers['Variation']}"
-
-        board = chess.Board()
-        moves: list[str] = []
-        for ply, move in enumerate(game.mainline_moves()):
-            if ply % 2 == 0:
-                moves.append(f"{ply // 2 + 1}.")
-            san = board.san_and_push(move)
-            moves.append(san)
-
-        #        svg = chess.svg.board(board)
-        #        filename = opening.replace("/", "x") + ".svg"
-        #        openings_filenames[opening] = filename
-        #        with open(f"openings/deck/{filename}", "w") as f:
-        #            f.write(svg)
-        #
-        openings[opening] = moves
-
-    opening_names = sorted(list(openings.keys()), key=lambda name: len(openings[name]))
-    for idx, name in enumerate(opening_names):
-        print(idx + 1, len(openings[name]))
-    for idx, name in enumerate(opening_names):
-        moves = openings[name]
-        moves_str = " ".join(moves)
-
-
-#        row = [
-#            f"{str(idx).zfill(5)} {name}",
-#            moves_str + f'<br><img src="{openings_filenames[name]}"/>',
-#        ]
-#        print("\t".join(row))
-
-
-@cli.command("prune", help="Prunes a lichess PGN file")
-@click.argument(
-    "out-file",
-    type=click.File(mode="w"),
-    default=sys.stdin,
-)
-@click.argument(
-    "in-file",
-    type=click.File(),
-    default=sys.stdin,
-)
-def prune_cli(out_file, in_file):
-    buffer = ""
-    with tqdm(total=1787158305) as pbar:
-        # with tqdm(total=89342529) as pbar:
-        for line in in_file:
-            if (
-                line.startswith('[Termination "Time forfeit"]')
-                or line.startswith('[WhiteTitle "BOT"]')
-                or line.startswith('[BlackTitle "BOT"]')
-            ):
-                buffer = None
-
-            if line.startswith("[Event "):
-                if "Bullet" in line:
-                    buffer = None
-                    continue
-
-                if buffer is not None:
-                    out_file.write(buffer)
-
-                buffer = ""
-
-            if buffer is not None:
-                buffer += line
-
-            pbar.update()
-        if buffer is not None:
-            out_file.write(buffer)
 
 
 if __name__ == "__main__":

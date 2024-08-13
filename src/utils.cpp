@@ -1,14 +1,14 @@
 #include "utils.h"
 
 #include <algorithm>
-#include <string>
-#include <vector>
-#include <iostream>
-#include <sstream>
+#include <cctype>
 #include <fstream>
+#include <iostream>
 #include <map>
 #include <ranges>
-#include <cctype>
+#include <sstream>
+#include <string>
+#include <vector>
 
 #include "debug.h"
 
@@ -44,17 +44,17 @@ void trim(std::string &s) {
   rtrim(s);
 }
 
-bool get_row(std::istream& in, std::vector<std::string>& row) {
+bool get_row(std::istream &in, std::vector<std::string> &row) {
   std::string line;
 
   return get_row(in, row, line);
 }
 
-bool get_row(std::istream& in, std::vector<std::string>& row, std::string& line) {
+bool get_row(std::istream &in, std::vector<std::string> &row,
+             std::string &line) {
   if (!std::getline(in, line)) {
     return false;
   }
-
 
   // Split the line by tab character
   split(line, row, '\t');
@@ -73,7 +73,6 @@ int get_header_index(const std::vector<std::string> &headers,
   return -1;
 }
 
-
 void split(const std::string &line, std::vector<std::string> &row, char delim) {
   // Split the line by tab character
   std::stringstream ss(line);
@@ -90,7 +89,7 @@ int parse_rating(const std::string &rating) { return std::stoi(rating); }
 std::string get_cohort_by_lichess(int lichess_rating) {
 
   // Find the cohort based on the Lichess rating
-  for (const auto& [rating_floor, cohort] : rating_boundaries) {
+  for (const auto &[rating_floor, cohort] : rating_boundaries) {
     if (lichess_rating < rating_floor) {
       return cohort;
     }
@@ -99,19 +98,18 @@ std::string get_cohort_by_lichess(int lichess_rating) {
   return "2400p";
 }
 
-std::string get_cohort_by_lichess(const std::string& lichess_rating) {
+std::string get_cohort_by_lichess(const std::string &lichess_rating) {
   return get_cohort_by_lichess(parse_rating(lichess_rating));
 }
 
-
 // https://lichess.org/faq#time-controls
-TimeControl get_time_control(const std::string& time_control_str) {
+TimeControl get_time_control(const std::string &time_control_str) {
   if (time_control_str == "-") {
     return Correspondence;
   }
   std::vector<std::string> components;
   split(time_control_str, components, '+');
-  
+
   if (components.size() != 2) {
     throw std::invalid_argument("received invalid time control");
   }
@@ -144,10 +142,10 @@ TimeControl get_time_control(const std::string& time_control_str) {
   return UnknownTimeControl;
 }
 
-std::string classify_endgame(const std::string& fen) {
+std::string classify_endgame(const std::string &fen) {
   std::map<char, int> counts;
 
-  for (const char& c : fen) {
+  for (const char &c : fen) {
     if (c == ' ') {
       break;
     }
@@ -157,7 +155,8 @@ std::string classify_endgame(const std::string& fen) {
 
   int total_pieces = 0;
   std::string out;
-  for (auto& piece : {'K', 'B', 'N', 'R', 'Q', 'P', 'k', 'b', 'n', 'r', 'q', 'p'}) {
+  for (auto &piece :
+       {'K', 'B', 'N', 'R', 'Q', 'P', 'k', 'b', 'n', 'r', 'q', 'p'}) {
     int count = counts[piece];
 
     for (int j = 0; j < count; j++) {
@@ -173,7 +172,7 @@ std::string classify_endgame(const std::string& fen) {
   return out;
 }
 
-void print_row(std::ostream& out, const std::vector<std::string> &row) {
+void print_row(std::ostream &out, const std::vector<std::string> &row) {
   if (row.empty()) {
     return;
   }
