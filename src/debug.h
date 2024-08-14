@@ -3,7 +3,7 @@
 
 #include <chrono>
 
-#define DEBUG_TIME_ENABLE true
+#define DEBUG_TIME_ENABLE false
 
 #define DEBUG_TIME_DECLARE(name)                                               \
   static std::chrono::time_point<std::chrono::high_resolution_clock>           \

@@ -1,10 +1,9 @@
 #include <fstream>
 #include <iostream>
-#include <vector>
 #include <memory>
+#include <vector>
 
-#include "commands.h"
-#include "endgames.h"
+#include "intake.h"
 
 std::string get_option(const int argc, const char *argv[],
                        const std::string &option);
@@ -41,24 +40,16 @@ int main(const int argc, const char *argv[]) {
     in_files.push_back(in_file);
   }
 
-    for (auto &in_file : in_files) {
-      if (command == "count-time-controls") {
-        cmd_count_time_controls(out_file);
-      } else if (command == "stats") {
-        cmd_stats(*in_file, out_file);
-      } else if (command == "endgame-by-cohort") {
-        cmd_endgame_by_cohort(*in_file, out_file);
-      } else if (command == "group-by-2") {
-        cmd_group_by_two(*in_file, out_file);
-      } else if (command == "classify-endgames") {
-        cmd_classify_endgames(*in_file, out_file);
-      } else {
-        std::cerr << "Command not found." << std::endl;
-        return 1;
-      }
-
-      in_file->close();
+  for (auto &in_file : in_files) {
+    if (command == "intake") {
+      cmd_intake(*in_file, out_file);
+    } else {
+      std::cerr << "Command not found." << std::endl;
+      return 1;
     }
+
+    in_file->close();
+  }
 
   out_file.close();
 

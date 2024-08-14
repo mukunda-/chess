@@ -1,3 +1,6 @@
+#include "intake.h"
+
+#include <cstddef>
 #include <cstdint>
 #include <fstream>
 #include <iostream>
@@ -8,9 +11,8 @@
 #include <tuple>
 #include <vector>
 
-#include "endgames.h"
-
 #include "chess.hpp"
+#include "utils.h"
 
 #define SEP '\t'
 
@@ -18,6 +20,7 @@
 
 DEBUG_TIME_DECLARE(flush);
 DEBUG_TIME_DECLARE(game_work);
+DEBUG_TIME_DECLARE(endgame_work);
 DEBUG_TIME_DECLARE(board_work);
 DEBUG_TIME_DECLARE(continuation_work);
 DEBUG_TIME_DECLARE(commit);
@@ -103,12 +106,14 @@ struct Board {
   bool white_to_move;
   std::string castle_rights;
   int enpassant_sq;
-  std::string hash;
+  std::uint64_t hash;
 };
 
 struct Continuation {
   Board board;
-  std::string move_san;
+  std::string move_uci;
+  std::uint64_t next_board_hash;
+  int ply;
 };
 
 struct Game {
@@ -162,6 +167,10 @@ void insert_games(pqxx::work &tx, const std::vector<Game> &games,
                              "utc_time"});
 
   for (auto const &game : games) {
+    if (game_ids.count(game.site) > 0) {
+      continue;
+    }
+
     auto row = std::make_tuple(
         game.white, game.white_elo, game.white_fide_id, game.white_rating_diff,
         game.white_team, game.white_title, game.black, game.black_elo,
@@ -169,10 +178,6 @@ void insert_games(pqxx::work &tx, const std::vector<Game> &games,
         game.black_title, game.annotator, game.board, game.date, game.eco,
         game.event, game.opening, game.result, game.round, game.site,
         game.termination, game.time_control, game.utc_date, game.utc_time);
-
-    if (game_ids.count(game.site) > 0) {
-      continue;
-    }
 
     games_table << row;
   }
@@ -205,42 +210,144 @@ void select_game_ids(pqxx::work &tx, const std::vector<Game> &games,
   }
 }
 
-void insert_boards(pqxx::work &tx, const std::vector<Game> &games) {
-  std::map<std::string, bool> seen;
-  // Add missing boards
+void select_board_hashes(pqxx::work &tx, const std::vector<Game> &games,
+                         std::map<std::uint64_t, bool> &board_hashes) {
+  std::vector<Board> boards;
+  for (auto const &game : games) {
+    for (const auto &continuation : game.continuations) {
+      boards.push_back(continuation.board);
+    }
+  }
+
+  // Batches
+  const std::size_t batch_size = 65535;
+  std::size_t idx = 0;
+  while (idx < boards.size()) {
+    std::string boards_query;
+    pqxx::placeholders boards_placeholders;
+    pqxx::params boards_params;
+
+    for (std::size_t i = 0; i < batch_size && idx < boards.size(); i++) {
+      const auto board = boards.at(idx++);
+      if (boards_query == "") {
+        boards_query = "SELECT hash from boards where hash in (" +
+                       boards_placeholders.get();
+      } else {
+        boards_query += ", " + boards_placeholders.get();
+      }
+
+      boards_params.append(board.hash);
+      boards_placeholders.next();
+    }
+
+    boards_query += ")";
+
+    auto rows = tx.query<uint64_t>(boards_query, boards_params);
+    for (auto const &[hash] : rows) {
+      board_hashes[hash] = true;
+    }
+  }
+}
+
+void insert_boards(pqxx::work &tx, const std::vector<Game> &games,
+                   std::map<std::uint64_t, bool> &seen) {
+  const pqxx::table_path boards_table_path = {"boards"};
+
+  auto boards_table = pqxx::stream_to::table(tx, boards_table_path,
+                                             {
+                                                 "hash",
+                                                 "white_bishops",
+                                                 "white_rooks",
+                                                 "white_queens",
+                                                 "white_knights",
+                                                 "white_king",
+                                                 "white_pawn",
+                                                 "black_bishops",
+                                                 "black_rooks",
+                                                 "black_queens",
+                                                 "black_knights",
+                                                 "black_king",
+                                                 "black_pawn",
+                                                 "white_to_move",
+                                                 "castle_rights",
+                                                 "enpassant_sq",
+                                             });
+
   for (const auto &game : games) {
     for (const auto &continuation : game.continuations) {
       const auto &board = continuation.board;
 
-      if (seen[board.hash]) {
+      if (seen.count(board.hash) > 0) {
         continue;
       }
 
-      tx.exec_prepared("insert_boards", board.hash,
-                       to_bits(board.white_bishops), to_bits(board.white_rooks),
-                       to_bits(board.white_queens),
-                       to_bits(board.white_knights), to_bits(board.white_king),
-                       to_bits(board.white_pawn), to_bits(board.black_bishops),
-                       to_bits(board.black_rooks), to_bits(board.black_queens),
-                       to_bits(board.black_knights), to_bits(board.black_king),
-                       to_bits(board.black_pawn), board.white_to_move,
-                       board.castle_rights, board.enpassant_sq);
+      boards_table.write_values(
+          board.hash, to_bits(board.white_bishops), to_bits(board.white_rooks),
+          to_bits(board.white_queens), to_bits(board.white_knights),
+          to_bits(board.white_king), to_bits(board.white_pawn),
+          to_bits(board.black_bishops), to_bits(board.black_rooks),
+          to_bits(board.black_queens), to_bits(board.black_knights),
+          to_bits(board.black_king), to_bits(board.black_pawn),
+          board.white_to_move, board.castle_rights, board.enpassant_sq);
 
       seen[board.hash] = true;
+    }
+  }
+
+  boards_table.complete();
+}
+
+void insert_endgames(pqxx::work &tx, const std::vector<Game> &games,
+                     std::map<std::string, std::int64_t> &game_ids) {
+  for (auto const &game : games) {
+    const auto game_id = game_ids.at(game.site);
+    for (auto const &endgame : game.endgames) {
+      tx.exec_prepared("insert_endgames", game_id, endgame);
     }
   }
 }
 
 void insert_continuations(pqxx::work &tx, const std::vector<Game> &games,
                           std::map<std::string, std::int64_t> &game_ids) {
+  pqxx::placeholders placeholders;
+  pqxx::params params;
+
+  std::string insert;
   for (auto const &game : games) {
     const auto game_id = game_ids.at(game.site);
     for (auto const &continuation : game.continuations) {
       const auto &board = continuation.board;
-      tx.exec_prepared("insert_continuations", game_id, board.hash,
-                       continuation.move_san);
+      if (insert == "") {
+        insert = "insert into continuations (game_id, last_board_hash, "
+                 "next_board_hash, move_uci, ply) values ";
+      } else {
+        insert += ", ";
+      }
+      insert += "(" + placeholders.get() + ",";
+      placeholders.next();
+      params.append(game_id);
+
+      insert += placeholders.get() + ",";
+      placeholders.next();
+      params.append(board.hash);
+
+      insert += placeholders.get() + ",";
+      placeholders.next();
+      params.append(continuation.next_board_hash);
+
+      insert += placeholders.get() + ",";
+      placeholders.next();
+      params.append(continuation.move_uci);
+
+      insert += placeholders.get();
+      placeholders.next();
+      params.append(continuation.ply);
+
+      insert += ")";
     }
   }
+
+  tx.exec_params(insert, params);
 }
 
 void commit(pqxx::connection &conn, const std::vector<Game> &todo) {
@@ -248,24 +355,33 @@ void commit(pqxx::connection &conn, const std::vector<Game> &todo) {
 
   DEBUG_TIME_START(game_work);
   std::map<std::string, std::int64_t> game_ids;
-  std::cout << "Selecting existing game ids" << std::endl;
+  // std::cout << "Selecting existing game ids" << std::endl;
   select_game_ids(tx, todo, game_ids);
-  std::cout << "inserting new game ids" << std::endl;
+  // std::cout << "inserting new game ids" << std::endl;
   insert_games(tx, todo, game_ids);
-  std::cout << "Selecting newly inserted game ids" << std::endl;
+  // std::cout << "Selecting newly inserted game ids" << std::endl;
   select_game_ids(tx, todo, game_ids);
   DEBUG_TIME_END(game_work);
 
+  std::map<std::uint64_t, bool> board_hashes;
   DEBUG_TIME_START(board_work);
-  std::cout << "inserting boards" << std::endl;
-  insert_boards(tx, todo);
+  // std::cout << "selecting boards" << std::endl;
+  select_board_hashes(tx, todo, board_hashes);
+  // std::cout << "inserting boards" << std::endl;
+  insert_boards(tx, todo, board_hashes);
   DEBUG_TIME_END(board_work);
 
   DEBUG_TIME_START(continuation_work);
-  std::cout << "Inserting continuations" << std::endl;
+  // std::cout << "Inserting continuations" << std::endl;
   insert_continuations(tx, todo, game_ids);
-  std::cout << "Done!" << std::endl;
+  // std::cout << "Done!" << std::endl;
   DEBUG_TIME_END(continuation_work);
+
+  DEBUG_TIME_START(endgame_work);
+  // std::cout << "Inserting continuations" << std::endl;
+  insert_endgames(tx, todo, game_ids);
+  // std::cout << "Done!" << std::endl;
+  DEBUG_TIME_END(endgame_work);
 
   DEBUG_TIME_START(commit);
   tx.commit();
@@ -274,15 +390,44 @@ void commit(pqxx::connection &conn, const std::vector<Game> &todo) {
 
 class MyVisitor {
 private:
-  std::ifstream &_in;
   chess::Board _board;
   std::map<std::string, std::string> _headers;
   std::vector<Game> _todo;
   Game _game;
   pqxx::connection &_conn;
+  std::ostream &_out;
 
 public:
-  MyVisitor(std::ifstream &in, pqxx::connection &conn) : _in(in), _conn(conn) {}
+  MyVisitor(pqxx::connection &conn, std::ostream &out)
+      : _conn(conn), _out(out) {}
+
+  void readGames(std::ifstream &in) {
+    std::vector<std::string> row;
+    while (get_row(in, row)) {
+      startPgn();
+      headers(row);
+      const std::string &pgn = row.at(row.size() - 1);
+
+      std::stringstream ss(pgn);
+      std::string move_uci;
+      while (std::getline(ss, move_uci, ' ')) {
+        if (move_uci.size() <= 0) {
+          continue;
+        }
+
+        char &c = move_uci.at(0);
+        if (c == '1' || c == '0' || c == '*') {
+          break;
+        }
+
+        move(move_uci);
+      }
+
+      endPgn();
+    }
+
+    flush();
+  }
 
   void startPgn() {
     _board = chess::Board(
@@ -290,7 +435,7 @@ public:
     _game = Game{};
   }
 
-  void headers(std::vector<std::string> row) {
+  void headers(const std::vector<std::string> &row) {
     int column = 0;
     _game.white = row.at(column++);
     _game.white_elo = row.at(column++);
@@ -319,9 +464,7 @@ public:
     _game.utc_time = row.at(column++);
   }
 
-  void startMoves() {}
-
-  void move(std::string_view comment) {
+  void move(const std::string &uci) {
     _game.ply++;
 
     Board db_board = {
@@ -360,15 +503,20 @@ public:
         .white_to_move = _board.sideToMove() == chess::Color::WHITE,
         .castle_rights = _board.getCastleString(),
         .enpassant_sq = _board.enpassantSq().index(),
-        .hash = std::to_string(_board.hash()),
+        .hash = _board.hash(),
     };
 
-    const chess::Move move = chess::uci::parseSan(_board, san);
-
-    _game.continuations.push_back(
-        Continuation{.board = db_board, .move_san = std::string(san)});
+    const chess::Move move = chess::uci::uciToMove(_board, uci);
 
     _board.makeMove(move);
+
+    const auto next_board_hash = _board.hash();
+
+    _game.continuations.push_back(
+        Continuation{.board = db_board,
+                     .move_uci = uci,
+                     .next_board_hash = next_board_hash,
+                     .ply = _game.ply});
 
     const std::string endgame = classify_endgame(_board);
     if (endgame != "") {
@@ -377,17 +525,22 @@ public:
   }
 
   void endPgn() {
-    // Both players must have made a move for us to care.
-    if (_game.continuations.size() > 1) {
-      _todo.push_back(_game);
-    }
+    _todo.push_back(_game);
+    _out << _game.event << '\t' << _game.white << " (" << _game.white_elo
+         << ")\t" << _game.black << " (" << _game.black_elo << ")" << "\t"
+         << _game.site << std::endl;
 
-    if (_todo.size() >= 1000) {
+    if (_todo.size() >= 100) {
+      std::cout << "ok" << std::endl;
       flush();
     }
   }
 
   void flush() {
+    if (_todo.empty()) {
+      return;
+    }
+
     DEBUG_TIME_START(flush);
     commit(_conn, _todo);
     _todo.clear();
@@ -402,17 +555,16 @@ void prepare_insert_boards(pqxx::connection &conn) {
       "white_knights, white_king, white_pawn, black_bishops, black_rooks, "
       "black_queens, black_knights, black_king, black_pawn, white_to_move, "
       "castle_rights, enpassant_sq) values ($1, $2, $3, $4, $5, $6, $7, $8, "
-      "$9, $10, $11, $12, $13, $14, $15, $16) on conflict (hash) do nothing");
+      "$8, $10, $11, $12, $13, $14, $15, $16) on conflict (hash) do nothing");
 }
 
-void prepare_insert_continuations(pqxx::connection &conn) {
-  conn.prepare(
-      "insert_continuations",
-      "insert into continuations (game_id, board_hash, move_san) values ($1, "
-      "$2, $3) on conflict (game_id, board_hash, move_san) do nothing");
+void prepare_insert_endgames(pqxx::connection &conn) {
+  conn.prepare("insert_endgames",
+               "insert into endgames (game_id, endgame) values ($1, $2)"
+               "on conflict (game_id, endgame) do nothing");
 }
 
-int cmd_classify_endgames(std::ifstream &in, std::ostream &out) {
+int cmd_intake(std::ifstream &in, std::ostream &out) {
   const char *dbUsername = std::getenv("DB_USERNAME");
   const char *dbPassword = std::getenv("DB_PASSWORD");
   const char *dbHost = std::getenv("DB_HOST");
@@ -434,14 +586,13 @@ int cmd_classify_endgames(std::ifstream &in, std::ostream &out) {
   std::cout << conn_str << std::endl;
   pqxx::connection conn(conn_str);
   if (conn.is_open()) {
-    prepare_insert_boards(conn);
-    prepare_insert_continuations(conn);
+    prepare_insert_endgames(conn);
 
     std::cout << "Connected to database successfully." << std::endl;
 
-    auto vis = std::make_unique<MyVisitor>(in, conn);
+    auto vis = std::make_unique<MyVisitor>(conn, out);
 
-    vis->flush();
+    vis->readGames(in);
 
     conn.close();
   } else {
