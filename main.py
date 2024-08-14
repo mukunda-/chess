@@ -107,114 +107,65 @@ def cli():
     pass
 
 
-def db_insert(cur, tbl_name, columns, values, *suffix):
-    placeholders = ["%s" for _ in columns]
-    insert = f"insert into {tbl_name} ({','.join(columns)}) values ({','.join(placeholders)}) {' '.join(suffix)}"
-    print(insert)
-    return cur.execute(insert, values)
+@cli.command("eval", help="evaluate positions in db")
+def cli_serve():
+    import chess.engine
+    import chess
 
-
-@cli.command("serve", help="read commands from stdin and write to database")
-@click.argument("in-file", type=click.File())
-def cli_serve(in_file):
+    engine = chess.engine.SimpleEngine.popen_uci(
+        "external/stockfish/stockfish-ubuntu-x86-64-avx2"
+    )
 
     db_uri = f"postgresql://{config['DB_USERNAME']}:{config['DB_PASSWORD']}@127.0.0.1:5432/{config['DB_NAME']}"
+    max_depth = 20
     with psycopg.connect(db_uri, autocommit=True) as conn:
         with conn.cursor() as cur:
-            game_ids = {}
-            cur.execute("select site, id from game_ids")
-            for site, game_id in cur.fetchall():
-                game_ids[site] = game_id
+            cur.execute(
+                "select last_board_hash, next_board_hash, move_uci from continuations where ply = 1 group by 1,2,3 having count(*) > 10000 order by count(*) desc",
+            )
 
-            for line in tqdm(in_file):
-                work(game_ids, cur, line)
+            todo = [
+                [chess.Board(), *continuation, max_depth]
+                for continuation in cur.fetchall()
+            ]
 
+            seen = {}
+            while todo:
+                print(len(todo))
 
-def work(game_ids, cur, line):
-    command, *args = [s.strip() for s in line.split("\t")]
-    if command == "set_headers":
-        _, *kvs = args
+                board, last_board_hash, next_board_hash, move_uci, depth = todo.pop(0)
+                if depth <= 0 or (last_board_hash, move_uci) in seen:
+                    continue
 
-        headers = {
-            HEADER_TO_COLUMN[kvs[idx]]: kvs[idx + 1] for idx in range(0, len(kvs), 2)
-        }
+                seen[(last_board_hash, move_uci)] = True
 
-        columns = list(headers.keys())
-        values = list(headers.values())
+                board.push_uci(move_uci)
+                info = engine.analyse(board, chess.engine.Limit(depth=20))
+                score = info["score"].white()
+                numeric_score = score.score()
+                if score.is_mate():
+                    stockfish_cp_score = None
+                    stockfish_mate_score = numeric_score
+                else:
+                    stockfish_cp_score = numeric_score
+                    stockfish_mate_score = None
 
-        conflict_update = ",".join(f"{c}=pgns.{c}" for c in columns)
-        db_insert(
-            cur,
-            "pgns",
-            columns,
-            values,
-            "on conflict(site) do update set",
-            conflict_update,
-            "returning id",
-        )
+                cur.execute(
+                    "update boards set stockfish_cp_score = %s, stockfish_mate_score = %s where hash = %s",
+                    (stockfish_cp_score, stockfish_mate_score, next_board_hash),
+                )
 
-        pgn_id = cur.fetchone()[0]
+                cur.execute(
+                    "select last_board_hash, next_board_hash, move_uci from continuations where last_board_hash = %s group by 1,2,3 having count(*) > 5000 order by count(*) desc limit 20",
+                    (next_board_hash,),
+                )
 
-        db_insert(
-            cur,
-            "games",
-            ["pgn_id"],
-            [pgn_id],
-            "on conflict(pgn_id) do update set pgn_id=games.pgn_id returning id",
-        )
+                todo.extend(
+                    [board.copy(stack=False), *continuation, depth - 1]
+                    for continuation in cur.fetchall()
+                )
 
-        game_id = cur.fetchone()[0]
-
-        game_ids[headers["site"]] = game_id
-
-    elif command == "set_moves":
-        site, *moves = args
-        game_id = game_ids[site]
-
-        # Create opening
-        opening_length = min(len(moves), 30)
-        opening_moves = moves[0:opening_length]
-
-        columns = ["bestie_code"] + ALL_MOVE_COLUMNS
-
-        move_values = opening_moves + [None for _ in range(max(0, 30 - len(moves)))]
-        values = [uuid.uuid4()] + move_values
-
-        db_insert(
-            cur,
-            "openings",
-            columns,
-            values,
-            "on conflict (",
-            ",".join(ALL_MOVE_COLUMNS),
-            ") do nothing",
-        )
-
-        where_clause = " and ".join(
-            [f"{c}=%s" for c in ALL_MOVE_COLUMNS[:opening_length]]
-            + [f"{c} is NULL" for c in ALL_MOVE_COLUMNS[opening_length:]]
-        )
-
-        cur.execute("select id from openings where " + where_clause, opening_moves)
-        opening_id = cur.fetchone()[0]
-
-        cur.execute(
-            "insert into games_openings (game_id, opening_id) values (%s, %s) on conflict(game_id, opening_id) do nothing",
-            [game_id, opening_id],
-        )
-
-    elif command == "set_endgames":
-        site, *endgames = args
-
-        game_id = game_ids[site]
-
-        columns = ["game_id", "endgame"]
-        placeholders = ["%s" for _ in columns]
-        data = [(game_id, endgame) for endgame in endgames]
-
-        insert = f"insert into endgames ({','.join(columns)}) values ({','.join(placeholders)}) on conflict(game_id, endgame) do nothing"
-
-        cur.executemany(insert, data)
+        engine.quit()
 
 
 @cli.command("endgame-wdl", help="Calculate WDL per endgame classification")
