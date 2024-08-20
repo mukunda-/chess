@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 
+#include "eval.h"
 #include "intake.h"
 
 std::string get_option(const int argc, const char *argv[],
@@ -39,16 +40,19 @@ int main(const int argc, const char *argv[]) {
 
     in_files.push_back(in_file);
   }
+  if (command == "eval") {
+    cmd_eval(out_file);
+  } else {
+    for (auto &in_file : in_files) {
+      if (command == "intake") {
+        cmd_intake(*in_file, out_file);
+      } else {
+        std::cerr << "Command not found." << std::endl;
+        return 1;
+      }
 
-  for (auto &in_file : in_files) {
-    if (command == "intake") {
-      cmd_intake(*in_file, out_file);
-    } else {
-      std::cerr << "Command not found." << std::endl;
-      return 1;
+      in_file->close();
     }
-
-    in_file->close();
   }
 
   out_file.close();

@@ -16,6 +16,8 @@ python-chess = "^1.999"
 polars = "^1.4.0"
 pyquery = "^2.0.0"
 psycopg = {extras = ["binary"], version = "^3.2.1"}
+stockfish = "^3.28.0"
+prettytable = "^3.11.0"
 
 
 [tool.poetry.group.dev.dependencies]

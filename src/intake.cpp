@@ -16,7 +16,7 @@
 
 #define SEP '\t'
 
-#include "debug.h"
+#include "debug_time.h"
 
 DEBUG_TIME_DECLARE(flush);
 DEBUG_TIME_DECLARE(game_work);
@@ -27,12 +27,6 @@ DEBUG_TIME_DECLARE(commit);
 
 #define LIGHT_SQUARES_MASK 0x55AA55AA55AA55AA
 #define DARK_SQUARES_MASK 0xAA55AA55AA55AA55
-
-std::string to_bits(std::uint64_t value) {
-  std::bitset<64> bits(value);
-
-  return bits.to_string();
-}
 
 struct EndgameClassComp {
   chess::PieceType piece_type;

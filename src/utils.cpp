@@ -1,16 +1,13 @@
 #include "utils.h"
 
 #include <algorithm>
+#include <bitset>
 #include <cctype>
-#include <fstream>
 #include <iostream>
 #include <map>
-#include <ranges>
 #include <sstream>
 #include <string>
 #include <vector>
-
-#include "debug.h"
 
 // Define the rating boundaries with Lichess values as keys
 static std::map<int, std::string> rating_boundaries = {
@@ -182,4 +179,10 @@ void print_row(std::ostream &out, const std::vector<std::string> &row) {
   }
 
   out << row.back() << "\n";
+}
+
+std::string to_bits(std::uint64_t value) {
+  std::bitset<64> bits(value);
+
+  return bits.to_string();
 }

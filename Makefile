@@ -22,7 +22,7 @@
 
 #### PROJECT SETTINGS ####
 # The name of the executable to be created
-BIN_NAME := hello
+BIN_NAME := chess
 # Compiler used
 CXX ?= g++
 # Extension of source files used in the project
@@ -40,7 +40,7 @@ DCOMPILE_FLAGS = -D DEBUG
 # Add additional include paths
 INCLUDES = -I $(SRC_PATH)
 # General linker settings
-LINK_FLAGS = -lpqxx -lpq
+LINK_FLAGS = -lpqxx -lpq -lboost_system
 # Additional release-specific linker settings
 RLINK_FLAGS =
 # Additional debug-specific linker settings

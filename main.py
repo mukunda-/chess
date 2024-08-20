@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from dataclasses import dataclass
 import sys
 import re
 import io
@@ -11,8 +12,6 @@ from click.utils import LazyFile
 from tqdm import tqdm
 
 import polars as pl
-
-import psycopg
 
 
 WHITE_WIN = "1-0"
@@ -105,67 +104,6 @@ def stream_columns(sources):
 @click.group()
 def cli():
     pass
-
-
-@cli.command("eval", help="evaluate positions in db")
-def cli_serve():
-    import chess.engine
-    import chess
-
-    engine = chess.engine.SimpleEngine.popen_uci(
-        "external/stockfish/stockfish-ubuntu-x86-64-avx2"
-    )
-
-    db_uri = f"postgresql://{config['DB_USERNAME']}:{config['DB_PASSWORD']}@127.0.0.1:5432/{config['DB_NAME']}"
-    max_depth = 20
-    with psycopg.connect(db_uri, autocommit=True) as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                "select last_board_hash, next_board_hash, move_uci from continuations where ply = 1 group by 1,2,3 having count(*) > 10000 order by count(*) desc",
-            )
-
-            todo = [
-                [chess.Board(), *continuation, max_depth]
-                for continuation in cur.fetchall()
-            ]
-
-            seen = {}
-            while todo:
-                print(len(todo))
-
-                board, last_board_hash, next_board_hash, move_uci, depth = todo.pop(0)
-                if depth <= 0 or (last_board_hash, move_uci) in seen:
-                    continue
-
-                seen[(last_board_hash, move_uci)] = True
-
-                board.push_uci(move_uci)
-                info = engine.analyse(board, chess.engine.Limit(depth=20))
-                score = info["score"].white()
-                numeric_score = score.score()
-                if score.is_mate():
-                    stockfish_cp_score = None
-                    stockfish_mate_score = numeric_score
-                else:
-                    stockfish_cp_score = numeric_score
-                    stockfish_mate_score = None
-
-                cur.execute(
-                    "update boards set stockfish_cp_score = %s, stockfish_mate_score = %s where hash = %s",
-                    (stockfish_cp_score, stockfish_mate_score, next_board_hash),
-                )
-
-                cur.execute(
-                    "select last_board_hash, next_board_hash, move_uci from continuations where last_board_hash = %s group by 1,2,3 having count(*) > 5000 order by count(*) desc limit 20",
-                    (next_board_hash,),
-                )
-
-                todo.extend(
-                    [board.copy(stack=False), *continuation, depth - 1]
-                    for continuation in cur.fetchall()
-                )
-
-        engine.quit()
 
 
 @cli.command("endgame-wdl", help="Calculate WDL per endgame classification")
