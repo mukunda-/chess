@@ -3,7 +3,8 @@
 #include <memory>
 #include <vector>
 
-#include "eval.h"
+#include "eval_db.h"
+#include "eval_tsv.h"
 #include "intake.h"
 
 std::string get_option(const int argc, const char *argv[],
@@ -13,7 +14,8 @@ std::vector<std::string> get_positionals(const int argc, const char *argv[]);
 int main(const int argc, const char *argv[]) {
   std::vector<std::string> args = get_positionals(argc, argv);
   if (args.size() < 1) {
-    std::cerr << "Usage: app -o output.ctv input-a input-b" << std::endl;
+    std::cerr << "Usage: chess command -o output.ctv input-a input-b"
+              << std::endl;
 
     return 1;
   }
@@ -40,12 +42,15 @@ int main(const int argc, const char *argv[]) {
 
     in_files.push_back(in_file);
   }
-  if (command == "eval") {
-    cmd_eval(out_file);
+
+  if (command == "eval-db") {
+    cmd_eval_db(out_file);
   } else {
     for (auto &in_file : in_files) {
       if (command == "intake") {
         cmd_intake(*in_file, out_file);
+      } else if (command == "eval-tsv") {
+        cmd_eval_tsv(*in_file, out_file);
       } else {
         std::cerr << "Command not found." << std::endl;
         return 1;

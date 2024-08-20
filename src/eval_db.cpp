@@ -1,4 +1,4 @@
-#include "eval.h"
+#include "eval_db.h"
 
 #include <cstdint>
 #include <iostream>
@@ -66,8 +66,8 @@ void read_games(bp::opstream &os, bp::ipstream &is, pqxx::connection &conn,
   }
 }
 
-int cmd_eval(std::ostream &out) {
-  std::cout << "Evaluating positions in DB" << std::endl;
+int cmd_eval_db(std::ostream &out) {
+  std::cerr << "Evaluating positions in DB" << std::endl;
 
   const char *dbUsername = std::getenv("DB_USERNAME");
   const char *dbPassword = std::getenv("DB_PASSWORD");
@@ -87,7 +87,6 @@ int cmd_eval(std::ostream &out) {
       " user=" + std::string(dbUsername) +
       " password=" + std::string(dbPassword) + " dbname=" + std::string(dbName);
 
-  std::cout << conn_str << std::endl;
   pqxx::connection conn(conn_str);
   if (!conn.is_open()) {
     std::cerr << "Failed to connect to database." << std::endl;
@@ -95,7 +94,7 @@ int cmd_eval(std::ostream &out) {
     return 1;
   }
 
-  std::cout << "Connected to database successfully." << std::endl;
+  std::cerr << "Connected to database successfully." << std::endl;
 
   bp::ipstream is;
   bp::opstream os;
@@ -103,6 +102,7 @@ int cmd_eval(std::ostream &out) {
   bp::child c("./external/stockfish", bp::std_in<os, bp::std_out> is);
 
   stockfish::send_options(os);
+  // stockfish::read_response(os, is, out);
   stockfish::read_response(os, is);
 
   /*
