@@ -341,7 +341,7 @@ void insert_continuations(pqxx::work &tx, const std::vector<Game> &games,
     }
   }
 
-  tx.exec_params(insert, params);
+  tx.exec(insert, params);
 }
 
 void commit(pqxx::connection &conn, const std::vector<Game> &todo) {

@@ -43,7 +43,7 @@ void read_games(bp::opstream &os, bp::ipstream &is, pqxx::connection &conn,
 
       while (!moves.empty()) {
         std::string moves_concat;
-        for (const auto [move, board_hash] : moves) {
+        for (const auto &[move, board_hash] : moves) {
           moves_concat += " " + move;
         }
 
@@ -54,9 +54,8 @@ void read_games(bp::opstream &os, bp::ipstream &is, pqxx::connection &conn,
 
         int eval = 0;
         if (stockfish::read_score_cp(os, is, &eval)) {
-          tx.exec_params(
-              "update boards set stockfish_eval = $1 where hash = $2", eval,
-              board_hash);
+          tx.exec("update boards set stockfish_eval = $1 where hash = $2",
+                  {eval, board_hash});
         }
       }
 
