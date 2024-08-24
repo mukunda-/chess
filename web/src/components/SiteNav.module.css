@@ -1,0 +1,15 @@
+@media print {
+  .nav {
+    display: none;
+  }
+}
+.nav > ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  list-style: none;
+}
+
+.nav__item__link--active {
+  font-weight: 700;
+}

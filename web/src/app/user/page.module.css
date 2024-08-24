@@ -1,0 +1,12 @@
+.hero {
+  border: 1px solid black;
+  border-radius: 2rem;
+  padding: 2rem;
+  margin-bottom: var(--spacing-xl);
+  box-shadow: 10px 10px rgba(0,0,0,0.2);
+}
+
+.hero h1 {
+  font-size: var(--font-size-xl);
+  margin-bottom: 1rem;
+}
