@@ -1,15 +1,8 @@
 #!/usr/bin/env python
 
-from dataclasses import dataclass
-import sys
-import re
-import io
 import os
-import uuid
 
 import click
-from click.utils import LazyFile
-from tqdm import tqdm
 
 import polars as pl
 
@@ -261,37 +254,6 @@ def cli_endgames_wdl(pretty, out_path, in_paths):
         out_df = out_df.select("total", "band", "endgame", WHITE_WIN, DRAW, BLACK_WIN)
 
     out_df.write_csv(out_path, separator="\t")
-
-
-@cli.command("board-images", help="build openings book")
-@click.argument("in-file", type=click.File())
-@click.option("-o", "--out", type=click.Path(exists=True), required=True)
-def cli_board_images(in_file, out):
-    import json
-    import chess.pgn
-    import chess.svg
-    import chess
-
-    unsafe_chars_re = re.compile(r"[^\w]")
-
-    rows = json.load(in_file)
-    for row in tqdm(rows):
-        pgn = io.StringIO(row["pgn"] + "\n\n")
-        game = chess.pgn.read_game(pgn)
-        if not game:
-            print("Failed on", row)
-            sys.exit(1)
-
-        board = game.board()
-        for move in game.mainline_moves():
-            board.push(move)
-
-        svg = chess.svg.board(board)
-
-        filename = unsafe_chars_re.sub("_", board.epd())
-        path = os.path.join(out, filename)
-        with open(f"{path}.svg", "w") as f:
-            f.write(svg)
 
 
 if __name__ == "__main__":

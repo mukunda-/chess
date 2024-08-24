@@ -5,6 +5,7 @@
 
 #include "eval_db.h"
 #include "eval_tsv.h"
+#include "gen_system.h"
 #include "intake.h"
 
 std::string get_option(const int argc, const char *argv[],
@@ -45,6 +46,8 @@ int main(const int argc, const char *argv[]) {
 
   if (command == "eval-db") {
     cmd_eval_db(out_file);
+  } else if (command == "gen-system") {
+    cmd_gen_system(out_file);
   } else {
     for (auto &in_file : in_files) {
       if (command == "intake") {

@@ -76,6 +76,11 @@ void split(const std::string &line, std::vector<std::string> &row, char delim) {
   std::string col;
   row.clear();
   while (std::getline(ss, col, delim)) {
+    trim(col);
+    if (col.empty()) {
+      continue;
+    }
+
     row.push_back(col);
   }
 }

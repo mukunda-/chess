@@ -102,21 +102,7 @@ int cmd_eval_db(std::ostream &out) {
   bp::child c("./external/stockfish", bp::std_in<os, bp::std_out> is);
 
   stockfish::send_options(os);
-  // stockfish::read_response(os, is, out);
-  stockfish::read_response(os, is);
-
-  /*
-  send_eval(os, "e2e4 b8c6");
-  read_response(os, is);
-
-  send_eval(os, "f2f3 e7e5 g2g4");
-  read_response(os, is);
-
-  send_eval(os, "f2f3 e7e5 g2g4 d8h4");
-  read_response(os, is);
-
-  send_quit(os);
-  */
+  stockfish::read_response(os, is, std::cerr);
 
   read_games(os, is, conn, out);
 

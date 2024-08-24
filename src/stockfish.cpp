@@ -7,33 +7,80 @@
 #include <sstream>
 #include <string>
 
+#include <boost/asio.hpp>
+#include <boost/process.hpp>
+
+#include "utils.h"
+
 namespace bp = boost::process;
 
 namespace stockfish {
-void send_new_game(bp::opstream &os) { os << "ucinewgame" << std::endl; }
 
-void send_eval(bp::opstream &os, const std::string &moves) {
-  os << "position startpos moves " + moves << std::endl;
-  os << "go depth 10" << std::endl;
+void send(bp::opstream &os, const std::string &msg) { os << msg << std::endl; }
+
+void send_new_game(bp::opstream &os) { send(os, "ucinewgame"); }
+
+void send_position(bp::opstream &os, const std::string &moves) {
+  send(os, "position startpos moves " + moves);
 }
 
-void send_quit(bp::opstream &os) { os << "quit" << std::endl; }
+void send_position_fen(bp::opstream &os, const std::string &fen) {
+  send(os, "position fen " + fen);
+}
+
+void send_depth(bp::opstream &os, unsigned short d) {
+  send(os, "go depth " + std::to_string(d));
+}
+
+void send_eval(bp::opstream &os, const std::string &moves) {
+  send_position(os, moves);
+  send_depth(os, 10);
+}
+
+void send_quit(bp::opstream &os) { send(os, "quit"); }
 
 void send_options(bp::opstream &os) {
-  os << "uci" << std::endl;
-  os << "setoption name Threads value 1" << std::endl;
-  // os << "setoption name UCI_ShowWDL value true" << std::endl;
+  send(os, "uci");
+  send(os, "setoption name Threads value 1");
+  send(os, "setoption name UCI_ShowWDL value true");
+}
+
+bool read_eval(bp::ipstream &is, Eval &eval) {
+  bool found = false;
+  std::string line;
+  while (getline(is, line)) {
+    if (line.starts_with("bestmove ")) {
+      break;
+    }
+
+    std::vector<std::string> fields;
+    split(line, fields, ' ');
+
+    for (std::size_t i = 0; i < fields.size(); i++) {
+      if (fields[i] == "wdl") {
+        eval.win = std::stoi(fields[i + 1]);
+        eval.draw = std::stoi(fields[i + 2]);
+        eval.loss = std::stoi(fields[i + 3]);
+
+        found = true;
+        i += 3;
+      } else if (fields[i] == "score" && fields[i + 1] == "cp") {
+        eval.cp = std::stoi(fields[i + 2]);
+        i += 2;
+      }
+    }
+  }
+
+  return found;
 }
 
 bool read_score_cp(bp::opstream &os, bp::ipstream &is, int *eval) {
   const std::string param_name = "score cp";
 
-  os << "isready" << std::endl;
-
   bool found = false;
   std::string line;
   while (getline(is, line)) {
-    if (line == "readyok") {
+    if (line.starts_with("bestmove ")) {
       break;
     }
 
@@ -50,12 +97,12 @@ bool read_score_cp(bp::opstream &os, bp::ipstream &is, int *eval) {
   return found;
 }
 
-void read_response(bp::opstream &os, bp::ipstream &is) {
-  os << "isready" << std::endl;
+void read_response(bp::opstream &os, bp::ipstream &is, std::ostream &out) {
+  send(os, "isready");
 
   std::string line;
   while (getline(is, line)) {
-    std::cout << line << std::endl;
+    out << line << std::endl;
     if (line == "readyok") {
       return;
     }
