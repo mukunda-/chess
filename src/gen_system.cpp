@@ -63,8 +63,6 @@ void get_moves(std::ostream &out, bp::opstream &os, bp::ipstream &is,
       if (good_for_me) {
         const auto next_fen = board.getFen();
         moves.push_back(std::make_tuple(next_fen, game));
-      } else {
-        std::cerr << "Pruning " << game << std::endl;
       }
     } else {
       const int tolerance = 1000;
@@ -81,6 +79,10 @@ void get_moves(std::ostream &out, bp::opstream &os, bp::ipstream &is,
     }
 
     board.unmakeMove(move);
+  }
+
+  if (!my_move) {
+    out << so_far << std::endl;
   }
 
   for (const auto &[next_fen, game] : moves) {

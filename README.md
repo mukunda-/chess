@@ -153,3 +153,11 @@ group by 1, 2
 order by count desc
 limit 2;
 ```
+
+```bash
+find data/openings/text/ -type f -name "*.txt" -exec dotenvx run -- poetry run scripts/tts.py {} -o {}.mp3 ";"
+```
+
+```bash
+sox -n -r 44100 -c 2 silence-2s.wav trim 0.0 2.0
+```
