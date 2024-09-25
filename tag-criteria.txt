@@ -1,0 +1,3 @@
+WhiteTitle <> "BOT"
+BlackTitle <> "BOT"
+Event <> "Bullet"

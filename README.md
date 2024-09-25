@@ -10,7 +10,7 @@ LICHESS_ARCHIVE=lichess_db_standard_rated_$YEAR\_$MONTH
 mkdir -p data/$LICHESS_ARCHIVE
 cd data/$LICHESS_ARCHIVE
 wget https://database.lichess.org/standard/$LICHESS_ARCHIVE.pgn.zst
-zstdcat $LICHESS_ARCHIVE.pgn.zst | ../../external/pgn-extract/pgn-extract -R ../../external/pgn-extract/roster -#1000000 --minply 3 --tsv -t tag-criteria.txt  --tagsubstr -Wuci 2> progress
+zstdcat $LICHESS_ARCHIVE.pgn.zst | ../../external/pgn-extract/pgn-extract -R ../../external/pgn-extract/roster -#1000000 --minply 3 --tsv -t tag-criteria.txt --nobadresults --fixresulttags   --tagsubstr -Wuci 2> progress
 ```
 
 And then in a different pane
