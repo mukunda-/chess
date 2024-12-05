@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import asyncio
 from functools import wraps
 import math
+import sys
 
 import chess
 import chess.engine
@@ -23,8 +24,9 @@ def coro(f):
 @dataclass
 class App:
     is_running: bool
-    board: chess.Board
     engine: chess.engine.UciProtocol
+    game: chess.pgn.Game
+    game_node: chess.pgn.GameNode
 
 
 @dataclass
@@ -41,27 +43,47 @@ class Command:
 
 
 async def get_bot_move(app: App) -> chess.Move:
-    candidates = await get_candidates(app.board, app.engine)
+    candidates = await get_candidates(app.game_node.board(), app.engine)
     candidate = select_candidate(candidates)
 
     return candidate.move
 
+def is_game_over(app: App) -> bool:
+    return app.game_node.board().is_game_over()
+
+def is_draw(app: App) -> bool:
+    return app.game_node.board().can_claim_draw()
+
+def declare_draw(app: App) -> None:
+    app.game.headers["Result"] = "1-2/1-2"
+
+def push_move(app: App, move: chess.Move) -> None:
+    app.game_node = app.game_node.add_variation(move)
 
 async def dispatch(app: App, cmd: Command) -> App:
     if cmd.name == "m":
         try:
-            app.board.push_san(cmd.args[0])
+            push_move(app, chess.Move.from_uci(cmd.args[0]))
         except chess.IllegalMoveError:
             print("Illegal move")
     elif cmd.name == "n":
         move = await get_bot_move(app)
-        app.board.push(move)
+        push_move(app, move)
     elif cmd.name == "q":
         app.is_running = False
     else:
         print("Unrecognized command")
 
-    print(get_pgn(app.board.move_stack))
+    if is_draw(app):
+        print("Draw!")
+        declare_draw(app)
+        app.is_running = False
+
+    if is_game_over(app):
+        print("Game over!")
+        app.is_running = False
+
+    print(app.game)
 
     return app
 
@@ -81,11 +103,16 @@ async def get_candidates(
     candidates = []
     for move in board.legal_moves:
         board.push(move)
-        eval = await engine.analyse(board, chess.engine.Limit(nodes=1000))
+        eval = await engine.analyse(board, chess.engine.Limit(nodes=3000))
+
+        if "score" not in eval:
+            continue
+
         wdl = eval["score"].wdl().white()
         win = wdl.wins
         loss = wdl.losses
         draw = wdl.draws
+
         if win == 0 or loss == 0:
             sharpness = 0
         else:
@@ -111,22 +138,32 @@ def select_candidate(candidates: list[Candidate]) -> Candidate:
 
 
 def get_command():
-    cmd, *args = input("(m)ove, n(ext), q(uit): ").split(" ")
+    line = sys.stdin.readline()
+    print(line)
 
-    return Command(name=cmd, args=args)
+    return None
 
+def write_move(move: chess.Move):
+    result = chess.engine.PlayResult(move, None)
+    print(result)
+    
 
 @click.command()
 @click.argument("engine_path", type=click.Path(exists=True))
 @coro
 async def main(engine_path):
-    _, engine = await chess.engine.popen_uci([engine_path, "--backend=cuda-auto"])
+    _, engine = await chess.engine.popen_uci([engine_path, "--backend=cuda-auto", "--threads=8"])
 
-    app = App(is_running=True, board=chess.Board(), engine=engine)
+    game = chess.pgn.Game()
+    game_node = game
+    app = App(is_running=True, engine=engine, game=game, game_node=game_node)
     while app.is_running:
-        # cmd = get_command()
-        # app = await dispatch(app, cmd)
-        app = await dispatch(app, Command(name="n", args=[]))
+        get_command()
+
+        candidates = await get_candidates(game_node.board(), app.engine)
+        candidate = select_candidate(candidates)
+
+        write_move(candidate.move)
 
     await engine.quit()
 
