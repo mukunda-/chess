@@ -1,13 +1,14 @@
+#include "strutil.h"
+
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "strutil.h"
+void trim_right(char *str) {
+    char *tail = str + strlen(str) - 1;
 
-void trim_right(char *s) {
-  char *tail = s + strlen(s) - 1;
-
-  while (isspace(*tail) && tail >= s) {
-    *tail = '\0';
-  }
+    while (isspace(*tail) && tail >= str) {
+        *tail = '\0';
+        tail--;
+    }
 }
