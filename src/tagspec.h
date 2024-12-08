@@ -28,16 +28,10 @@ typedef struct tagcmp_t {
 tagspec_t *tagspec_new();
 
 /* Dealocate tags and children */
-void tagspec_free(tagspec_t *order);
-
-/* Create a new tag */
-tagspec_t *tagspec_new();
-
-/* Dealocate tags and children */
-void tagspec_free(tagspec_t *order);
+void tagspec_free(tagspec_t *spec);
 
 /* Returns whether the given tag matches tagspec */
-bool tagspec_matches(tagspec_t *order, const char *name, const char *value);
+bool tagspec_matches(tagspec_t *spec, const char *name, const char *value);
 
 /* Add to the tag specification */
 void tagspec_add(tagspec_t *tags, const char *name, const char *value,

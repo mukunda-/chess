@@ -207,3 +207,5 @@ hello
 **/compile_commands.json
 
 /chess
+
+.gdb_history
