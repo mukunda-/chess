@@ -83,7 +83,7 @@ moves
 
 move: WORD extra {
     movelist_add(env->games->tail->moves, MOVE_TYPE_MOVE, $1);
-
+    env->games->head->ply++;
     free($1);
 }
 

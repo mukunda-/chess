@@ -11,4 +11,10 @@ typedef struct frontend_t {
     symbols_t* symbols;
 } frontend_t;
 
+/* Allocates a new frontend */
+frontend_t* frontend_new();
+
+/* Deallocates frontend */
+void frontend_free(frontend_t* env);
+
 #endif

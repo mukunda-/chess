@@ -14,6 +14,7 @@ struct game_t *game_new() {
     game->tags = taglist_new();
     game->moves = movelist_new();
     game->next = NULL;
+    game->ply = 0;
 
     return game;
 }

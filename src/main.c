@@ -7,14 +7,16 @@
 #include "movelist.h"
 #include "pgn.tab.h"
 #include "strutil.h"
-#include "symbols.h"
 #include "taglist.h"
 #include "tagspec.h"
 
 typedef void *yyscan_t;
-int yyparse(yyscan_t yyscanner, frontend_t *env);
 int yylex_init(yyscan_t *yyscanner);
 int yylex_destroy(yyscan_t yyscanner);
+
+void initialize_tagspec(tagspec_t *spec, FILE *roster_fp);
+void run(frontend_t *env);
+void print_headers(frontend_t *env);
 
 int main(int argc, char **argv) {
     if (argc != 2) {
@@ -30,47 +32,59 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
     }
 
-    frontend_t env;
-    env.games = gamelist_new();
-    env.spec = tagspec_new();
-    env.symbols = symbols_new();
+    frontend_t *env = frontend_new();
 
-    char *line = NULL;
-    size_t line_len;
-    while (getline(&line, &line_len, roster_fp) != -1) {
-        trim_right(line);
-        tagspec_add(env.spec, line, "", TAG_ALWAYS);
-    }
-
-    free(line);
+    initialize_tagspec(env->spec, roster_fp);
     fclose(roster_fp);
 
-    // Print TSV Header row
-    for (tagcmp_t *cmp = env.spec->head; cmp != NULL; cmp = cmp->next) {
-        printf("%s\t", cmp->name);
-    }
-    printf("moves\tresult");
-    printf("\n");
+    print_headers(env);
 
-    {
-        yyscan_t scanner;
-        yylex_init(&scanner);
-        // Parse into the games list.
-        yyparse(scanner, &env);
-        yylex_destroy(scanner);
-    }
+    run(env);
 
-    gamelist_free(env.games);
-    tagspec_free(env.spec);
-    symbols_free(env.symbols);
+    frontend_free(env);
 
     return EXIT_SUCCESS;
 }
 
+void run(frontend_t *env) {
+    yyscan_t scanner;
+    yylex_init(&scanner);
+    // Parse into the games list.
+    yyparse(scanner, env);
+    yylex_destroy(scanner);
+}
+
+void initialize_tagspec(tagspec_t *spec, FILE *roster_fp) {
+    char *line = NULL;
+    size_t line_len;
+    while (getline(&line, &line_len, roster_fp) != -1) {
+        trim_right(line);
+        tagspec_add(spec, line, "", TAG_ALWAYS);
+    }
+
+    free(line);
+}
+
+void print_headers(frontend_t *env) {
+    for (tagcmp_t *cmp = env->spec->head; cmp != NULL; cmp = cmp->next) {
+        printf("%s\t", cmp->name);
+    }
+    printf("moves");
+    printf("\tresult");
+    printf("\tply");
+
+    printf("\n");
+}
+
 void print_moves(move_t *moves_head) {
+    int ply = 0;
     for (move_t *move = moves_head; move != NULL; move = move->next) {
         if (move->kind == MOVE_TYPE_MOVE) {
-            printf("%s ", move->value);
+            if (ply++ > 0) {
+                printf(" ");
+            }
+
+            printf("%s", move->value);
         }
     }
 }
@@ -92,7 +106,10 @@ void print_game(frontend_t *frontend, game_t *game) {
     printf("\t");
 
     // Print result
-    printf("%s", game->result);
+    printf("%s\t", game->result);
+
+    // print ply
+    printf("%d\t", game->ply);
 
     printf("\n");
 }

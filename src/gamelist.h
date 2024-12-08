@@ -12,6 +12,7 @@ typedef struct game_t {
     taglist_t *tags;
     movelist_t *moves;
     struct game_t *next;
+    int ply;
 } game_t;
 
 /**
