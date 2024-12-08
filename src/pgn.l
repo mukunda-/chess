@@ -1,6 +1,5 @@
 %option 8bit reentrant bison-bridge
 %option warn noyywrap nodefault
-%option header-file="pgn.lex.h"
 
 %{
 #include <stdlib.h>

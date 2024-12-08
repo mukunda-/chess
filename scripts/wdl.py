@@ -3,9 +3,7 @@
 import os
 
 import click
-
 import polars as pl
-
 
 WHITE_WIN = "1-0"
 DRAW = "1/2-1/2"

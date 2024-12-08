@@ -209,3 +209,5 @@ hello
 /chess
 
 .gdb_history
+
+valgrind-out.txt
