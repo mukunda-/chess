@@ -1,0 +1,4 @@
+---
+Checks:          'clang-diagnostic-*,clang-analyzer-*,clang-analyzer-*,concurrency-*,google-*,misc-*,performance-*,portability-*,readability-*'
+CheckOptions:
+  google-readability-function-size.LineThreshold: '30'
