@@ -1,10 +1,10 @@
 %option 8bit reentrant bison-bridge
 %option warn noyywrap nodefault
 
-%{
+%top {
 #include <stdlib.h>
 
-#include "pgn.tab.h"
+#include "pgn.syntax.h"
 
 #define RETURN_TOKEN_NEXT(token, next_state) { \
                BEGIN(next_state); \
@@ -13,7 +13,7 @@
 
 #define RETURN_TOKEN(token) return token;
 
-%}
+}
 
 %x TOKENIZE_TAG_NAME TOKENIZE_STRING
 %x TOKENIZE_COMMENT TOKENIZE_VARIATION

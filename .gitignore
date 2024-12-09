@@ -187,13 +187,6 @@ cython_debug/
 *.out
 *.app
 
-# ours
-data/
-.depend
-external/
-bin/
-hello
-
 # Cmake
 **/cmake-build-debug
 **/CMakeCache.txt
@@ -206,8 +199,14 @@ hello
 **/CMakeScripts
 **/compile_commands.json
 
-/chess
-
 .gdb_history
 
+# Our stuff
+data/
+.depend
+external/
+bin/
 valgrind-out.txt
+include/pgn.syntax.h
+.todo
+.tasks
