@@ -24,7 +24,7 @@ clean: $(INCLUDE) $(BUILD) $(BINDIR) $(LIBDIR)
 	mkdir -p $(BUILD) $(BINDIR) $(LIBDIR)
 	rm -r    $(BUILD) $(BINDIR) $(LIBDIR)
 	rm -f $(OBJS)
-	rm $(INCLUDE)/pgn.lex.h $(INCLUDE)/pgn.syntax.h
+	rm -f $(INCLUDE)/pgn.lex.h $(INCLUDE)/pgn.syntax.h
 
 lint:
 	find $(SRC) -name "*.c" -o -name "*.h" -exec clang-tidy $(CLANG_TIDY_ARGS) {} \;
