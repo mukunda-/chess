@@ -5,69 +5,61 @@
 #include <string.h>
 
 tagcmp_t *tagcmp_new(const char *name, const char *value, tagcmp_kind_t kind) {
-  tagcmp_t *tag = malloc(sizeof(tagcmp_t));
+    tagcmp_t *tag = malloc(sizeof(tagcmp_t));
 
-  tag->name = strdup(name);
-  tag->value = strdup(value);
-  tag->kind = kind;
-  tag->next = NULL;
+    tag->name = strdup(name);
+    tag->value = strdup(value);
+    tag->kind = kind;
+    tag->next = NULL;
 
-  return tag;
+    return tag;
 }
 
 void tagspec_add(tagspec_t *tags, const char *name, const char *value,
                  tagcmp_kind_t kind) {
-  tagcmp_t *cmp = tagcmp_new(name, value, kind);
+    tagcmp_t *cmp = tagcmp_new(name, value, kind);
 
-  if (tags->head == NULL || tags->tail == NULL) {
-    tags->head = cmp;
-    tags->tail = cmp;
-  } else {
-    tags->tail->next = cmp;
-    tags->tail = tags->tail->next;
-  }
+    if (tags->head == NULL || tags->tail == NULL) {
+        tags->head = cmp;
+        tags->tail = cmp;
+    } else {
+        tags->tail->next = cmp;
+        tags->tail = tags->tail->next;
+    }
 
-  if (tags->head == NULL) {
-    tags->head = tags->tail;
-  }
+    if (tags->head == NULL) {
+        tags->head = tags->tail;
+    }
 }
 
 tagspec_t *tagspec_new() {
-  tagspec_t *tags = malloc(sizeof(tagspec_t));
+    tagspec_t *tags = malloc(sizeof(tagspec_t));
 
-  tags->head = NULL;
-  tags->tail = NULL;
+    tags->head = NULL;
+    tags->tail = NULL;
 
-  return tags;
+    return tags;
 }
 
 void tagcmp_free(tagcmp_t *cmp) {
-  if (cmp == NULL) {
-    return;
-  }
+    if (cmp == NULL) {
+        return;
+    }
 
-  free(cmp->name);
-  free(cmp->value);
+    free(cmp->name);
+    free(cmp->value);
 
-  tagcmp_free(cmp->next);
+    tagcmp_free(cmp->next);
 
-  free(cmp);
+    free(cmp);
 }
 
 void tagspec_free(tagspec_t *tags) {
-  if (tags == NULL) {
-    return;
-  }
+    if (tags == NULL) {
+        return;
+    }
 
-  tagcmp_free(tags->head);
+    tagcmp_free(tags->head);
 
-  free(tags);
-}
-
-/* Returns whether the given tag matches tagspec */
-bool tagspec_matches(tagspec_t *spec, const char *name, const char *value) {
-  for (tagcmp_t *cmp = spec->head; cmp != NULL; cmp = cmp->next) {
-  }
-
-  return true;
+    free(tags);
 }

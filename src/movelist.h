@@ -2,10 +2,10 @@
 #define MOVELIST_H
 
 typedef enum move_type_t {
-  MOVE_TYPE_COMMENT = 0,
-  MOVE_TYPE_VARIATION,
-  MOVE_TYPE_MOVE,
-  MOVE_TYPE_MOVE_NUMBER,
+    MOVE_TYPE_COMMENT = 0,
+    MOVE_TYPE_VARIATION,
+    MOVE_TYPE_MOVE,
+    MOVE_TYPE_MOVE_NUMBER,
 } move_type_t;
 
 /**
@@ -15,8 +15,8 @@ typedef enum move_type_t {
  *
  */
 typedef struct movelist_t {
-  struct move_t *head;
-  struct move_t *tail;
+    struct move_t *head;
+    struct move_t *tail;
 } movelist_t;
 
 /**
@@ -26,9 +26,9 @@ typedef struct movelist_t {
  * Along, of course, with the next node in the list.
  */
 typedef struct move_t {
-  move_type_t kind;
-  char *value;
-  struct move_t *next;
+    move_type_t kind;
+    char *value;
+    struct move_t *next;
 } move_t;
 
 /* Allocate a movelist_t */

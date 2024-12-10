@@ -4,14 +4,14 @@
 #include "tagspec.h"
 
 typedef struct taglist_t {
-  struct tag_t *head;
-  struct tag_t *tail;
+    struct tag_t *head;
+    struct tag_t *tail;
 } taglist_t;
 
 typedef struct tag_t {
-  char *name;
-  char *value;
-  struct tag_t *next;
+    char *name;
+    char *value;
+    struct tag_t *next;
 } tag_t;
 
 /* Add a tag to the taglist.
