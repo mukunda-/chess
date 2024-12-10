@@ -13,6 +13,8 @@
 #include "pgn.lex.h"
 #include "pgn.syntax.h"
 
+#define UNUSED(x) (void)(x)
+
 typedef void *yyscan_t;
 int yylex_init(yyscan_t *yyscanner);
 int yylex_destroy(yyscan_t yyscanner);
@@ -127,7 +129,10 @@ void flush_games(frontend_t *env) {
     env->games = gamelist_new();
 }
 
-void yyerror(YYLTYPE *yyllocp, yyscan_t unused, frontend_t *env,
+void yyerror(YYLTYPE *yyllocp, yyscan_t scanner, frontend_t *env,
              const char *msg) {
+    UNUSED(scanner);
+    UNUSED(env);
+    UNUSED(yyllocp);
     fprintf(stderr, "error: %s\n", msg);
 }

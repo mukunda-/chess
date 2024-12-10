@@ -8,7 +8,7 @@
 %locations
 
 %param { yyscan_t scanner }
-%param { frontend_t *env }
+%parse-param { frontend_t *env }
 
 %union {
   char* str;
@@ -33,11 +33,11 @@
 
   typedef void* yyscan_t;
 
-  #define YY_DECL int yylex(YYSTYPE * yylval_param, YYLTYPE *yyloc, yyscan_t yyscanner, frontend_t *env)
+  #define YY_DECL int yylex(YYSTYPE * yylval_param, YYLTYPE *yyloc, yyscan_t yyscanner)
 }
 
 %code {
-  int yylex(YYSTYPE * yylval_param, YYLTYPE *yyloc, yyscan_t yyscanner, frontend_t *env);
+  int yylex(YYSTYPE * yylval_param, YYLTYPE *yyloc, yyscan_t yyscanner);
 
   void yyerror(YYLTYPE *yyloc, yyscan_t unused, frontend_t *env,
              const char *msg);
