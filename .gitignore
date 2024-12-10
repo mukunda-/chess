@@ -201,12 +201,16 @@ cython_debug/
 
 .gdb_history
 
-# Our stuff
+# Build artifacts
+include/pgn.lex.h
+include/pgn.syntax.h
+bin/
+lib/
+
+# Our Misc.
 data/
 .depend
 external/
-bin/
 valgrind-out.txt
-include/pgn.syntax.h
 .todo
 .tasks
