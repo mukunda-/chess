@@ -14,19 +14,26 @@ PGN_SYNTAX_H=$(INCLUDE)/pgn.syntax.h
 PGN_SYNTAX_C=$(BUILD)/pgn.syntax.c
 
 SRCS=$(wildcard $(SRC)/*.c) 
-OBJS=$(patsubst $(SRC)/%.c,$(BUILD)/%.o,$(SRCS) $(PGN_SYNTAX_C) $(PGN_LEX_C))
+OBJS=$(filter-out $(BUILD)/main.o, $(patsubst $(SRC)/%.c,$(BUILD)/%.o,$(SRCS) $(PGN_SYNTAX_C) $(PGN_LEX_C)))
 GENERATED_SRCS=
+
+TEST=tests
+TESTS=$(wildcard $(TEST)/*.c) 
+TESTBINS=$(patsubst $(TEST)/%.c,$(TEST)/bin/%, $(TESTS))
 
 CFLAGS=-I$(SRC) -I$(INCLUDE) -Wall -Wextra -Wpedantic -g3
 CC=clang
 
-all: $(BIN)
+all: $(BIN) 
 
 $(BIN): $(PGN_SYNTAX_H) $(PGN_LEX_H) $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o $@
+	$(CC) $(CFLAGS) $(OBJS) src/main.c -o $@
 
 $(BUILD)/%.o: $(SRC)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
+
+$(TEST)/bin/%: $(TEST)/%.c
+	$(CC) $(CFLAGS) $< $(OBJS) -o $@
 
 $(PGN_LEX_H): $(BUILD)/pgn.lex.c
 
@@ -58,6 +65,9 @@ compile_commands.json: compiledb
 doc:
 	doxygen Doxyfile
 
+test: $(TEST)/bin $(TESTBINS)
+	for test in $(TESTBINS) ; do ./$$test ; done
+
 precheck:
 	@make clean
 	@make lint
@@ -80,3 +90,10 @@ $(OBJ):
 
 $(BUILD):
 	mkdir -p $@
+
+$(TEST):
+	mkdir -p $@
+
+$(TEST)/bin:
+	mkdir -p $@
+

@@ -34,7 +34,7 @@ void tagspec_free(tagspec_t *spec);
 bool tagspec_matches(tagspec_t *spec, const char *name, const char *value);
 
 /* Add to the tag specification */
-void tagspec_add(tagspec_t *tags, const char *name, const char *value,
+void tagspec_add(tagspec_t *spec, const char *name, const char *value,
                  tagcmp_kind_t kind);
 
 #endif
