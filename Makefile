@@ -13,8 +13,9 @@ PGN_LEX_C=$(BUILD)/pgn.lex.c
 PGN_SYNTAX_H=$(INCLUDE)/pgn.syntax.h
 PGN_SYNTAX_C=$(BUILD)/pgn.syntax.c
 
-SRCS=$(wildcard $(SRC)/*.c) 
-OBJS=$(filter-out $(BUILD)/main.o, $(patsubst $(SRC)/%.c,$(BUILD)/%.o,$(SRCS) $(PGN_SYNTAX_C) $(PGN_LEX_C)))
+SRCS=$(wildcard $(SRC)/*.c) $(PGN_SYNTAX_C) $(PGN_LEX_C)
+OBJS=$(filter-out $(BUILD)/main.o, $(patsubst $(BUILD)/%.c,$(BUILD)/%.o, $(patsubst $(SRC)/%.c,$(BUILD)/%.o,$(SRCS))))
+
 GENERATED_SRCS=
 
 TEST=tests
@@ -24,7 +25,7 @@ TESTBINS=$(patsubst $(TEST)/%.c,$(TEST)/bin/%, $(TESTS))
 CFLAGS=-I$(SRC) -I$(INCLUDE) -Wall -Wextra -Wpedantic -g3
 CC=clang
 
-all: $(BIN) 
+all: $(BIN) $(TESTBINS)
 
 $(BIN): $(PGN_SYNTAX_H) $(PGN_LEX_H) $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) src/main.c -o $@
@@ -52,6 +53,7 @@ clean: $(INCLUDE) $(BUILD) $(BINDIR) $(LIBDIR)
 	rm -fr $(BUILD)/* $(BINDIR)/* $(LIBDIR)/*
 	rm -f $(OBJS)
 	rm -f $(INCLUDE)/pgn.lex.h $(INCLUDE)/pgn.syntax.h
+	rm -f $(TESTBINS)
 
 lint:
 	find $(SRC) -name "*.c" -o -name "*.h" -exec clang-tidy $(CLANG_TIDY_ARGS) {} \;
@@ -65,7 +67,7 @@ compile_commands.json: compiledb
 doc:
 	doxygen Doxyfile
 
-test: $(TEST)/bin $(TESTBINS)
+test: $(BIN) $(TEST)/bin $(TESTBINS) 
 	for test in $(TESTBINS) ; do ./$$test ; done
 
 precheck:
@@ -75,6 +77,9 @@ precheck:
 
 fuzz: $(BIN)
 	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --track-origins=yes  $(BIN) ./workspace/lichess/lichess-tag-roster.txt < data/test.txt
+
+run: $(BIN)
+	$(BIN) ./workspace/lichess/lichess-tag-roster.txt < data/test.txt
 
 $(BINDIR):
 	mkdir -p $@
