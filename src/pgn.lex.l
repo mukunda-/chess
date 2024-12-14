@@ -10,9 +10,6 @@
                BEGIN(next_state); \
                return token; \
              } \
-
-#define RETURN_TOKEN(token) return token;
-
 }
 
 %x TOKENIZE_TAG_NAME TOKENIZE_STRING
@@ -23,9 +20,9 @@
 <INITIAL>{
   [[:space:]]   ;
 
-  \[ RETURN_TOKEN(OPEN_BRACKET)
+  \[ return OPEN_BRACKET;
 
-  \] RETURN_TOKEN(CLOSE_BRACKET)
+  \] return CLOSE_BRACKET;
 
   \{ RETURN_TOKEN_NEXT(OPEN_CURLY, TOKENIZE_COMMENT)
 
@@ -72,12 +69,20 @@
 
 
 <TOKENIZE_COMMENT>{
-  [^}]* {
-    yylval->str = strdup(yytext);
-
-    return STRING;
-  }
   "}" RETURN_TOKEN_NEXT(CLOSE_CURLY, INITIAL)
+
+  \[%clk[[:space:]][[:digit:]][[:digit:]]?:[[:digit:]][[:digit:]]:[[:digit:]][[:digit:]]\] {
+    char *str = strdup(yytext + 6);
+    size_t len = strlen(str);
+
+    str[len - 1] = '\0';
+
+    yylval->str = str;
+
+    return CLOCK;
+  }
+  
+  . {}
 }
 
 %%

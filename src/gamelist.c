@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "gameclock.h"
 #include "movelist.h"
 #include "taglist.h"
 
@@ -13,8 +14,13 @@ struct game_t *game_new() {
     game->result = NULL;
     game->tags = taglist_new();
     game->moves = movelist_new();
-    game->next = NULL;
+
+    game->clock_white = gameclock_new();
+    game->clock_black = gameclock_new();
+
     game->ply = 0;
+
+    game->next = NULL;
 
     return game;
 }
@@ -27,6 +33,8 @@ void game_free(struct game_t *game) {
     movelist_free(game->moves);
     taglist_free(game->tags);
     game_free(game->next);
+    gameclock_free(game->clock_white);
+    gameclock_free(game->clock_black);
 
     free(game->result);
 

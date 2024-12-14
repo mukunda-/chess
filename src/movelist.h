@@ -2,10 +2,10 @@
 #define MOVELIST_H
 
 typedef enum move_type_t {
-    MOVE_TYPE_COMMENT = 0,
     MOVE_TYPE_VARIATION,
     MOVE_TYPE_MOVE,
     MOVE_TYPE_MOVE_NUMBER,
+    MOVE_TYPE_CLOCK,
 } move_type_t;
 
 /**

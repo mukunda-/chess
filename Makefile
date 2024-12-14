@@ -16,8 +16,6 @@ PGN_SYNTAX_C=$(BUILD)/pgn.syntax.c
 SRCS=$(wildcard $(SRC)/*.c) $(PGN_SYNTAX_C) $(PGN_LEX_C)
 OBJS=$(filter-out $(BUILD)/main.o, $(patsubst $(BUILD)/%.c,$(BUILD)/%.o, $(patsubst $(SRC)/%.c,$(BUILD)/%.o,$(SRCS))))
 
-GENERATED_SRCS=
-
 TEST=tests
 TESTS=$(wildcard $(TEST)/*.c) 
 TESTBINS=$(patsubst $(TEST)/%.c,$(TEST)/bin/%, $(TESTS))

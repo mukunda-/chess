@@ -1,6 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include "gameclock.h"
 #include "movelist.h"
 #include "taglist.h"
 
@@ -11,6 +12,8 @@ typedef struct game_t {
     char *result;
     taglist_t *tags;
     movelist_t *moves;
+    gameclock_t *clock_white;
+    gameclock_t *clock_black;
     struct game_t *next;
     int ply;
 } game_t;

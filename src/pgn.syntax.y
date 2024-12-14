@@ -14,7 +14,7 @@
   char* str;
 }
 
-%token<str> WORD STRING RESULT MOVE_NUMBER 
+%token<str> WORD STRING RESULT MOVE_NUMBER CLOCK
 %token OPEN_BRACKET CLOSE_BRACKET OPEN_CURLY CLOSE_CURLY QUOTE OPEN_PAREN CLOSE_PAREN
 
 
@@ -26,6 +26,7 @@
   #include "gamelist.h"
   #include "frontend.h"
   #include "taglist.h"
+  #include "gameclock.h"
 }
 
 %code requires {
@@ -93,10 +94,23 @@ extra
  | extra variation
  ;
 
-comment: OPEN_CURLY STRING CLOSE_CURLY {
-    movelist_add(env->games->tail->moves, MOVE_TYPE_COMMENT, $2);
-    free($2);
-}
+comment: OPEN_CURLY comment_parts CLOSE_CURLY
+       ;
+
+comment_parts
+  :
+  | comment_parts CLOCK {
+      game_t *game = env->games->tail;
+      if (game->ply % 2 == 0) {
+        gameclock_add(game->clock_black, $2);
+      } else {
+        gameclock_add(game->clock_white, $2);
+      }
+
+      movelist_add(env->games->tail->moves, MOVE_TYPE_CLOCK, $2);
+      free($2);
+    }
+  ;
 
 variation: OPEN_PAREN STRING CLOSE_PAREN {
    movelist_add(env->games->tail->moves, MOVE_TYPE_VARIATION, $2);

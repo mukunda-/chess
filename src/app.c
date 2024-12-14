@@ -5,6 +5,7 @@
 #include <stdlib.h>
 
 #include "frontend.h"
+#include "gameclock.h"
 #include "gamelist.h"
 #include "movelist.h"
 #include "pgn.lex.h"
@@ -38,9 +39,11 @@ void print_headers(frontend_t *env) {
     for (tagcmp_t *cmp = env->spec->head; cmp != NULL; cmp = cmp->next) {
         printf("%s\t", cmp->name);
     }
-    printf("moves");
-    printf("\tresult");
-    printf("\tply");
+    printf("Moves");
+    printf("\tClockWhite");
+    printf("\tClockBlack");
+    printf("\tResult");
+    printf("\tPly");
 
     printf("\n");
 }
@@ -55,6 +58,19 @@ void print_moves(move_t *moves_head) {
 
             printf("%s", move->value);
         }
+    }
+}
+
+void print_clock(gameclock_t *clock) {
+    bool first = true;
+    for (timestamp_t *ts = clock->head; ts != NULL; ts = ts->next) {
+        if (!first) {
+            printf(" ");
+        }
+
+        printf("%d", ts->time);
+
+        first = false;
     }
 }
 
@@ -74,12 +90,19 @@ void print_game(frontend_t *frontend, game_t *game) {
     print_moves(game->moves->head);
     printf("\t");
 
+    // Print the clock times for white
+    print_clock(game->clock_white);
+    printf("\t");
+
+    // Print the cl;ock times for black
+    print_clock(game->clock_black);
+    printf("\t");
+
     // Print result
     printf("%s\t", game->result);
 
     // print ply
     printf("%d\t", game->ply);
-
     printf("\n");
 }
 
