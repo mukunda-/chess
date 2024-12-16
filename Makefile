@@ -66,7 +66,7 @@ doc:
 	doxygen Doxyfile
 
 test: $(BIN) $(TEST)/bin $(TESTBINS) 
-	for test in $(TESTBINS) ; do ./$$test ; done
+	for test in $(TESTBINS) ; do valgrind -q --leak-check=full --show-leak-kinds=all --track-origins=yes $$test ; done
 
 precheck:
 	@make clean
@@ -74,10 +74,10 @@ precheck:
 	@make doc
 
 fuzz: $(BIN)
-	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --track-origins=yes  $(BIN) ./workspace/lichess/lichess-tag-roster.txt < data/test.txt
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $(BIN) ./workspace/lichess/lichess-tag-roster.txt < data/test.txt
 
 run: $(BIN)
-	$(BIN) ./workspace/lichess/lichess-tag-roster.txt < data/test.txt
+	$(BIN) ./workspace/time/roster < data/test.txt
 
 $(BINDIR):
 	mkdir -p $@
