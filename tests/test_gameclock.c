@@ -3,18 +3,24 @@
 
 #include "gameclock.h"
 
+// Test helpers
+#include "test.h"
+
 int main() {
+    test_start("gameclock_t");
     gameclock_t* clock = gameclock_new();
-    assert(clock);
+    assert_true(clock != NULL);
 
     gameclock_add(clock, "0:05:00");
-    assert(clock->tail->time == 300);
+    assert_true(clock->tail->time == 300);
 
     gameclock_add(clock, "0:04:00");
-    assert(clock->tail->time == 240);
+    assert_true(clock->tail->time == 240);
 
     gameclock_add(clock, "0:03:43");
-    assert(clock->tail->time == 223);
+    assert_true(clock->tail->time == 223);
 
     gameclock_free(clock);
+
+    test_end();
 }

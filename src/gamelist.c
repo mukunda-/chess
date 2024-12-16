@@ -8,7 +8,7 @@
 #include "movelist.h"
 #include "taglist.h"
 
-struct game_t *game_new() {
+game_t *game_new(void) {
     struct game_t *game = malloc(sizeof(struct game_t));
 
     game->result = NULL;
@@ -41,7 +41,7 @@ void game_free(struct game_t *game) {
     free(game);
 }
 
-gamelist_t *gamelist_new() {
+gamelist_t *gamelist_new(void) {
     gamelist_t *games = malloc(sizeof(gamelist_t));
 
     games->head = game_new();

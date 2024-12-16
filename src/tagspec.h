@@ -2,13 +2,13 @@
 #define TAGSPEC_H
 
 #include <stdbool.h>
+#include <stdio.h>
 
 typedef enum {
     TAG_EQUALS = 0,
     TAG_NOT_EQUALS,
     TAG_CONTAINS,
     TAG_NOT_CONTAINS,
-    TAG_NEVER,
     TAG_ALWAYS,
 } tagcmp_kind_t;
 
@@ -37,4 +37,9 @@ bool tagspec_matches(tagspec_t *spec, const char *name, const char *value);
 void tagspec_add(tagspec_t *spec, const char *name, const char *value,
                  tagcmp_kind_t kind);
 
+/* Load tagspec from file on top of current spec */
+void tagspec_load(tagspec_t *spec, FILE *fp);
+
+/* Parse tagspec line */
+void tagspec_add_line(tagspec_t *spec, const char *line);
 #endif

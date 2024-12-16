@@ -1,6 +1,12 @@
-White
+Site
 WhiteElo
-Black
 BlackElo
 TimeControl
+Ply > 3
 Result
+WhiteClock
+BlackClock
+WhiteTitle ! BOT
+BlackTitle ! BOT
+Event - Bullet
+Result ! *

@@ -13,3 +13,7 @@ It currently takes me ~50 minutes to process a 90 million game Lichess dump.
 I expect this number to flucuate wildly as I add features. I will eventually need to make the stats more scientific.
 
 Performance: 30k games per my-current-laptop second, 28k with zstdcat.
+
+## 00002
+
+Added clock times to potential outputs. Now output is roster controlled.  ~26k, no zstdcat 

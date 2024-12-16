@@ -26,10 +26,8 @@ int main(int argc, char **argv) {
 
     frontend_t *env = frontend_new();
 
-    initialize_tagspec(env->spec, roster_fp);
+    tagspec_load(env->spec, roster_fp);
     fclose(roster_fp);
-
-    print_headers(env);
 
     run(env);
 

@@ -11,7 +11,12 @@ tag_t *tag_new(const char *name, const char *value, tag_t *next) {
     tag_t *tag = malloc(sizeof(tag_t));
 
     tag->name = strdup(name);
-    tag->value = strdup(value);
+    if (value != NULL) {
+        tag->value = strdup(value);
+    } else {
+        tag->value = NULL;
+    }
+
     tag->next = next;
 
     return tag;
@@ -75,7 +80,7 @@ taglist_t *taglist_new_aligned(taglist_t *tags, tagspec_t *spec) {
         }
 
         if (!found) {
-            taglist_add(aligned_tags, cmp->name, "");
+            taglist_add(aligned_tags, cmp->name, NULL);
         }
     }
 
