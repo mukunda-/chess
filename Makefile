@@ -18,7 +18,7 @@ OBJS=$(filter-out $(BUILD)/main.o, $(patsubst $(BUILD)/%.c,$(BUILD)/%.o, $(patsu
 
 TEST=tests
 TESTS=$(wildcard $(TEST)/*.c) 
-TESTBINS=$(patsubst $(TEST)/%.c,$(TEST)/bin/%, $(TESTS))
+TESTBINS=$(patsubst $(TEST)/%.c,$(BINDIR)/tests/%, $(TESTS))
 
 CFLAGS=-I$(SRC) -I$(INCLUDE) -Wall -Wextra -Wpedantic -g3
 CC=clang
@@ -31,7 +31,9 @@ $(BIN): $(PGN_SYNTAX_H) $(PGN_LEX_H) $(OBJS)
 $(BUILD)/%.o: $(SRC)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(TEST)/bin/%: $(TEST)/%.c
+
+$(BINDIR)/tests/%: $(TEST)/%.c
+	mkdir -p $(BINDIR)/tests
 	$(CC) $(CFLAGS) $< $(OBJS) -o $@
 
 $(PGN_LEX_H): $(BUILD)/pgn.lex.c
@@ -97,6 +99,6 @@ $(BUILD):
 $(TEST):
 	mkdir -p $@
 
-$(TEST)/bin:
+$(BINDIR)/tests:
 	mkdir -p $@
 
