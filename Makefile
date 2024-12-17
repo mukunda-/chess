@@ -56,7 +56,7 @@ clean: $(INCLUDE) $(BUILD) $(BINDIR) $(LIBDIR)
 	rm -f $(TESTBINS)
 
 lint:
-	find $(SRC) -name "*.c" -o -name "*.h" -exec clang-tidy $(CLANG_TIDY_ARGS) {} \;
+	clang-tidy $(SRC)/*.c $(SRC)/*.h
 
 compiledb:
 	pip install compiledb
