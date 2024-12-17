@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <stdio.h>
 
 #define assert_true(x) \
     assert(x);         \

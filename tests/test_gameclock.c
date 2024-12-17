@@ -1,12 +1,12 @@
-#include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "gameclock.h"
 
 // Test helpers
 #include "test.h"
 
-int main() {
+int main(void) {
     test_start("gameclock_t");
     gameclock_t* clock = gameclock_new();
     assert_true(clock != NULL);
@@ -23,4 +23,6 @@ int main() {
     gameclock_free(clock);
 
     test_end();
+
+    return EXIT_SUCCESS;
 }
