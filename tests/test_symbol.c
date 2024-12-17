@@ -1,15 +1,15 @@
 #include <stdlib.h>
 
-#include "tagspec.h"
+#include "symbol.h"
 #include "test.h"
 
 int main(void) {
-    test_start("tagspec_t");
+    test_start("symboltable_t");
 
-    tagspec_t* spec = tagspec_new();
+    symboltable_t* spec = symboltable_new();
     assert_true(spec);
 
-    tagspec_free(spec);
+    symboltable_free(spec);
 
     test_end();
 
