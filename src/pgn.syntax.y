@@ -23,9 +23,9 @@
   #include <stdlib.h>
   #include <stddef.h>
 
-  #include "gamelist.h"
+  #include "game.h"
   #include "frontend.h"
-  #include "taglist.h"
+  #include "tag.h"
   #include "gameclock.h"
 }
 

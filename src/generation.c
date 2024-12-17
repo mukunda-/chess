@@ -5,9 +5,9 @@
 #include <string.h>
 
 #include "gameclock.h"
-#include "gamelist.h"
-#include "movelist.h"
-#include "taglist.h"
+#include "game.h"
+#include "move.h"
+#include "tag.h"
 #include "tagspec.h"
 
 void print_headers(tagspec_t *spec) {

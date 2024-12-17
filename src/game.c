@@ -1,12 +1,12 @@
-#include "gamelist.h"
+#include "game.h"
 
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "gameclock.h"
-#include "movelist.h"
-#include "taglist.h"
+#include "move.h"
+#include "tag.h"
 
 game_t *game_new(void) {
     struct game_t *game = malloc(sizeof(struct game_t));

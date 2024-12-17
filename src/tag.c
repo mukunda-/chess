@@ -1,10 +1,9 @@
-#include "taglist.h"
-
 #include <assert.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include "tag.h"
 #include "tagspec.h"
 
 tag_t *tag_new(const char *name, const char *value, tag_t *next) {

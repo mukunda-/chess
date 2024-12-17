@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 #include "frontend.h"
-#include "gamelist.h"
+#include "game.h"
 #include "generation.h"
 #include "pgn.lex.h"
 #include "pgn.syntax.h"

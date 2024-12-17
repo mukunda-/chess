@@ -2,8 +2,8 @@
 #define GAME_H
 
 #include "gameclock.h"
-#include "movelist.h"
-#include "taglist.h"
+#include "move.h"
+#include "tag.h"
 
 /**
  * A game
