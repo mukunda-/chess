@@ -23,20 +23,20 @@ tagcmp_t *tagcmp_new(const char *name, const char *value, tagcmp_kind_t kind) {
     return tag;
 }
 
-void tagspec_add(tagspec_t *tags, const char *name, const char *value,
+void tagspec_add(tagspec_t *spec, const char *name, const char *value,
                  tagcmp_kind_t kind) {
     tagcmp_t *cmp = tagcmp_new(name, value, kind);
 
-    if (tags->head == NULL || tags->tail == NULL) {
-        tags->head = cmp;
-        tags->tail = cmp;
+    if (spec->head == NULL || spec->tail == NULL) {
+        spec->head = cmp;
+        spec->tail = cmp;
     } else {
-        tags->tail->next = cmp;
-        tags->tail = tags->tail->next;
+        spec->tail->next = cmp;
+        spec->tail = spec->tail->next;
     }
 
-    if (tags->head == NULL) {
-        tags->head = tags->tail;
+    if (spec->head == NULL) {
+        spec->head = spec->tail;
     }
 }
 
@@ -50,26 +50,40 @@ tagspec_t *tagspec_new(void) {
 }
 
 void tagcmp_free(tagcmp_t *cmp) {
-    if (cmp == NULL) {
-        return;
+    while (cmp != NULL) {
+        tagcmp_t *next = cmp->next;
+
+        free(cmp->name);
+        free(cmp->value);
+        free(cmp);
+
+        cmp = next;
     }
-
-    free(cmp->name);
-    free(cmp->value);
-
-    tagcmp_free(cmp->next);
-
-    free(cmp);
 }
 
-void tagspec_free(tagspec_t *tags) {
-    if (tags == NULL) {
+void tagspec_free(tagspec_t *spec) {
+    if (spec == NULL) {
         return;
     }
 
-    tagcmp_free(tags->head);
+    tagcmp_free(spec->head);
 
-    free(tags);
+    free(spec);
+}
+
+tagcmp_kind_t tagspec_get_kind(char opperator) {
+    switch (opperator) {
+        case '!':
+            return TAG_NOT_EQUALS;
+        case '=':
+            return TAG_EQUALS;
+        case '-':
+            return TAG_NOT_CONTAINS;
+        case '~':
+            return TAG_CONTAINS;
+    }
+
+    return TAG_ALWAYS;
 }
 
 void tagspec_add_line(tagspec_t *spec, const char *line) {
@@ -94,22 +108,8 @@ void tagspec_add_line(tagspec_t *spec, const char *line) {
         at_value = "";
     }
 
-    switch (*at_op) {
-        case '!':
-            tagspec_add(spec, buf, at_value, TAG_NOT_EQUALS);
-            break;
-        case '=':
-            tagspec_add(spec, buf, at_value, TAG_EQUALS);
-            break;
-        case '-':
-            tagspec_add(spec, buf, at_value, TAG_NOT_CONTAINS);
-            break;
-        case '~':
-            tagspec_add(spec, buf, at_value, TAG_CONTAINS);
-            break;
-        default:
-            tagspec_add(spec, buf, NULL, TAG_ALWAYS);
-    }
+    tagcmp_kind_t kind = tagspec_get_kind(*at_op);
+    tagspec_add(spec, buf, at_value, kind);
 
     free(buf);
 }

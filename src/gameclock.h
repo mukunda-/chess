@@ -1,6 +1,8 @@
 #ifndef gameclock_H
 #define gameclock_H
 
+#define GAMECLOCK_MINUTE 60
+
 typedef struct timestamp_t {
     int time;
     struct timestamp_t* next;

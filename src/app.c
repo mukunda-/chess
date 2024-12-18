@@ -9,8 +9,6 @@
 #include "generation.h"
 #include "pgn.lex.h"
 #include "pgn.syntax.h"
-#include "strutil.h"
-#include "tagspec.h"
 
 #define UNUSED(x) (void)(x)
 

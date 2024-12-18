@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-movelist_t *movelist_new() {
+movelist_t *movelist_new(void) {
     movelist_t *moves = malloc(sizeof(struct movelist_t));
 
     moves->head = NULL;

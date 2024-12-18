@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "gameclock.h"
 #include "game.h"
+#include "gameclock.h"
 #include "move.h"
 #include "tag.h"
 #include "tagspec.h"
@@ -41,7 +41,7 @@ void print_clock(gameclock_t *clock) {
     }
 }
 
-void print_game(tagspec_t *spec, game_t *game) {
+bool is_kept(tagspec_t *spec, game_t *game) {
     for (tagcmp_t *cmp = spec->head; cmp != NULL; cmp = cmp->next) {
         for (tag_t *tag = game->tags->head; tag != NULL; tag = tag->next) {
             if (strcmp(tag->name, cmp->name) != 0) {
@@ -50,24 +50,32 @@ void print_game(tagspec_t *spec, game_t *game) {
 
             if (cmp->kind == TAG_EQUALS &&
                 (strcmp(tag->value, cmp->value) != 0)) {
-                return;
+                return false;
             }
 
             if (cmp->kind == TAG_NOT_EQUALS &&
                 (strcmp(tag->value, cmp->value) == 0)) {
-                return;
+                return false;
             }
 
             if (cmp->kind == TAG_CONTAINS &&
                 (strstr(tag->value, cmp->value) == NULL)) {
-                return;
+                return false;
             }
 
             if (cmp->kind == TAG_NOT_CONTAINS &&
                 (strstr(tag->value, cmp->value) != NULL)) {
-                return;
+                return false;
             }
         }
+    }
+
+    return true;
+}
+
+void print_game(tagspec_t *spec, game_t *game) {
+    if (!is_kept(spec, game)) {
+        return;
     }
 
     taglist_t *aligned_tags = taglist_new_aligned(game->tags, spec);

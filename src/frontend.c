@@ -1,8 +1,8 @@
 #include "frontend.h"
 
-#include "stdlib.h"
+#include <stdlib.h>
 
-frontend_t* frontend_new() {
+frontend_t* frontend_new(void) {
     frontend_t* env = malloc(sizeof(struct frontend_t));
     env->games = gamelist_new();
     env->spec = tagspec_new();

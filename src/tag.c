@@ -1,9 +1,10 @@
+#include "tag.h"
+
 #include <assert.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "tag.h"
 #include "tagspec.h"
 
 tag_t *tag_new(const char *name, const char *value, tag_t *next) {
@@ -32,7 +33,7 @@ void taglist_add(taglist_t *tags, const char *name, const char *value) {
     }
 }
 
-taglist_t *taglist_new() {
+taglist_t *taglist_new(void) {
     taglist_t *tags = malloc(sizeof(taglist_t));
 
     tags->head = NULL;
@@ -42,16 +43,15 @@ taglist_t *taglist_new() {
 }
 
 void tag_free(tag_t *tag) {
-    if (tag == NULL) {
-        return;
+    while (tag != NULL) {
+        tag_t *next = tag->next;
+
+        free(tag->name);
+        free(tag->value);
+        free(tag);
+
+        tag = next;
     }
-
-    free(tag->name);
-    free(tag->value);
-
-    tag_free(tag->next);
-
-    free(tag);
 }
 
 void taglist_free(taglist_t *tags) {

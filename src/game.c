@@ -26,19 +26,17 @@ game_t *game_new(void) {
 }
 
 void game_free(struct game_t *game) {
-    if (game == NULL) {
-        return;
+    while (game != NULL) {
+        game_t *next = game->next;
+        movelist_free(game->moves);
+        taglist_free(game->tags);
+        gameclock_free(game->clock_white);
+        gameclock_free(game->clock_black);
+        free(game->result);
+        free(game);
+
+        game = next;
     }
-
-    movelist_free(game->moves);
-    taglist_free(game->tags);
-    game_free(game->next);
-    gameclock_free(game->clock_white);
-    gameclock_free(game->clock_black);
-
-    free(game->result);
-
-    free(game);
 }
 
 gamelist_t *gamelist_new(void) {
