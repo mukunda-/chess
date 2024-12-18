@@ -1,5 +1,6 @@
 #include "tagspec.h"
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -81,45 +82,80 @@ tagcmp_kind_t tagspec_get_kind(char opperator) {
             return TAG_NOT_CONTAINS;
         case '~':
             return TAG_CONTAINS;
+        case '>':
+            return TAG_GREATER_THAN;
     }
 
-    return TAG_ALWAYS;
+    return TAG_UNKNOWN_OP;
 }
 
-void tagspec_add_line(tagspec_t *spec, const char *line) {
+bool tagspec_parse_line(tagspec_t *spec, const char *line) {
     char *buf = strdup(line);
     trim_right(buf);
 
-    // Operator
-    char *at_op = index(buf, ' ');
-    if (at_op == NULL) {
-        tagspec_add(spec, buf, NULL, TAG_ALWAYS);
+    char *saveptr = NULL;
+    const char *delims = " ";
+    const char *name = strtok_r(buf, delims, &saveptr);
+
+    const char *op_raw = strtok_r(NULL, delims, &saveptr);
+    if (op_raw == NULL) {
+        tagspec_add(spec, name, NULL, TAG_ALWAYS);
         free(buf);
-        return;
-    }
-    at_op[0] = '\0';
-    at_op++;
-
-    char *at_value = index(at_op, ' ');
-    if (at_value != NULL) {
-        at_value[0] = '\0';
-        at_value++;
-    } else {
-        at_value = "";
+        return true;
     }
 
-    tagcmp_kind_t kind = tagspec_get_kind(*at_op);
-    tagspec_add(spec, buf, at_value, kind);
+    tagcmp_kind_t kind = tagspec_get_kind(op_raw[0]);
+    if (kind == TAG_UNKNOWN_OP) {
+        free(buf);
+        return false;
+    }
 
+    const char *value = strtok_r(NULL, delims, &saveptr);
+    if (value == NULL) {
+        free(buf);
+        return false;
+    }
+
+    tagspec_add(spec, name, value, kind);
     free(buf);
+
+    return true;
 }
 
 void tagspec_load(tagspec_t *spec, FILE *roster_fp) {
     char *line = NULL;
     size_t line_len;
     while (getline(&line, &line_len, roster_fp) != -1) {
-        tagspec_add_line(spec, line);
+        assert(tagspec_parse_line(spec, line));
     }
 
     free(line);
+}
+
+bool tagspec_matches(tagspec_t *spec, const char *name, const char *value) {
+    for (tagcmp_t *cmp = spec->head; cmp != NULL; cmp = cmp->next) {
+        if (strcmp(name, cmp->name) != 0) {
+            continue;
+        }
+
+        switch (cmp->kind) {
+            case TAG_EQUALS:
+                return strcmp(value, cmp->value) == 0;
+            case TAG_NOT_EQUALS:
+                return strcmp(value, cmp->value) != 0;
+            case TAG_CONTAINS:
+                return strstr(value, cmp->value) != NULL;
+            case TAG_NOT_CONTAINS:
+                return strstr(value, cmp->value) == NULL;
+            case TAG_GREATER_THAN:
+                return atoi(value) > atoi(cmp->value);
+            case TAG_ALWAYS:
+                return true;
+            default:
+                fprintf(stderr, "Unknown operator: %c", cmp->kind);
+                assert(false && "unimplemented");
+        }
+    }
+
+    return true;
 }

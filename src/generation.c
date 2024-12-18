@@ -42,31 +42,9 @@ void print_clock(gameclock_t *clock) {
 }
 
 bool is_kept(tagspec_t *spec, game_t *game) {
-    for (tagcmp_t *cmp = spec->head; cmp != NULL; cmp = cmp->next) {
-        for (tag_t *tag = game->tags->head; tag != NULL; tag = tag->next) {
-            if (strcmp(tag->name, cmp->name) != 0) {
-                continue;
-            }
-
-            if (cmp->kind == TAG_EQUALS &&
-                (strcmp(tag->value, cmp->value) != 0)) {
-                return false;
-            }
-
-            if (cmp->kind == TAG_NOT_EQUALS &&
-                (strcmp(tag->value, cmp->value) == 0)) {
-                return false;
-            }
-
-            if (cmp->kind == TAG_CONTAINS &&
-                (strstr(tag->value, cmp->value) == NULL)) {
-                return false;
-            }
-
-            if (cmp->kind == TAG_NOT_CONTAINS &&
-                (strstr(tag->value, cmp->value) != NULL)) {
-                return false;
-            }
+    for (tag_t *tag = game->tags->head; tag != NULL; tag = tag->next) {
+        if (!tagspec_matches(spec, tag->name, tag->value)) {
+            return false;
         }
     }
 

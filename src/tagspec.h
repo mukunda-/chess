@@ -8,8 +8,10 @@ typedef enum {
     TAG_EQUALS = 0,
     TAG_NOT_EQUALS,
     TAG_CONTAINS,
+    TAG_GREATER_THAN,
     TAG_NOT_CONTAINS,
     TAG_ALWAYS,
+    TAG_UNKNOWN_OP,
 } tagcmp_kind_t;
 
 typedef struct tagspec_t {
@@ -41,5 +43,6 @@ void tagspec_add(tagspec_t *spec, const char *name, const char *value,
 void tagspec_load(tagspec_t *spec, FILE *roster_fp);
 
 /* Parse tagspec line */
-void tagspec_add_line(tagspec_t *spec, const char *line);
+bool tagspec_parse_line(tagspec_t *spec, const char *line);
+
 #endif
