@@ -8,10 +8,10 @@
 %locations
 
 %param { yyscan_t scanner }
-%parse-param { frontend_t *env }
+%param { frontend_t *env }
 
 %union {
-  char* str;
+  const char* str;
 }
 
 %token<str> WORD STRING RESULT MOVE_NUMBER CLOCK
@@ -34,11 +34,11 @@
 
   typedef void* yyscan_t;
 
-  #define YY_DECL int yylex(YYSTYPE * yylval_param, YYLTYPE *yyloc, yyscan_t yyscanner)
+  #define YY_DECL int yylex(YYSTYPE * yylval_param, YYLTYPE *yyloc, yyscan_t yyscanner, frontend_t *env)
 }
 
 %code {
-  int yylex(YYSTYPE * yylval_param, YYLTYPE *yyloc, yyscan_t yyscanner);
+  int yylex(YYSTYPE * yylval_param, YYLTYPE *yyloc, yyscan_t yyscanner, frontend_t *env);
 
   void yyerror(YYLTYPE *yyloc, yyscan_t unused, frontend_t *env,
              const char *msg);
@@ -56,8 +56,6 @@ pgn: tags moves RESULT {
     gamelist_add_result(env->games, $3);
 
     flush_games(env);
-
-    free($3);
 }
 
 tags
@@ -67,17 +65,12 @@ tags
 
 tag: OPEN_BRACKET WORD QUOTE STRING QUOTE CLOSE_BRACKET {
    taglist_add(env->games->tail->tags, $2, $4);
-
-   free($2);
-   free($4);
 }
 
 moves
   :
   | moves MOVE_NUMBER move {
     movelist_add(env->games->tail->moves, MOVE_TYPE_MOVE_NUMBER, $2);
-
-    free($2);
   }
   | moves move
   ;
@@ -85,7 +78,6 @@ moves
 move: WORD extra {
     movelist_add(env->games->tail->moves, MOVE_TYPE_MOVE, $1);
     env->games->head->ply++;
-    free($1);
 }
 
 extra
@@ -108,13 +100,11 @@ comment_parts
       }
 
       movelist_add(env->games->tail->moves, MOVE_TYPE_CLOCK, $2);
-      free($2);
     }
   ;
 
 variation: OPEN_PAREN STRING CLOSE_PAREN {
    movelist_add(env->games->tail->moves, MOVE_TYPE_VARIATION, $2);
-   free($2);
 }
 
 %%

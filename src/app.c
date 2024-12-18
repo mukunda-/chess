@@ -9,6 +9,7 @@
 #include "generation.h"
 #include "pgn.lex.h"
 #include "pgn.syntax.h"
+#include "symbol.h"
 
 #define UNUSED(x) (void)(x)
 
@@ -30,6 +31,9 @@ void flush_games(frontend_t *env) {
 
     gamelist_free(env->games);
     env->games = gamelist_new();
+
+    symboltable_free(env->symbols);
+    env->symbols = symboltable_new();
 }
 
 void yyerror(YYLTYPE *yyllocp, yyscan_t scanner, frontend_t *env,

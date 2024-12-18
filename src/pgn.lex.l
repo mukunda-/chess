@@ -4,6 +4,8 @@
 %top {
 #include <stdlib.h>
 
+#include "symbol.h"
+
 #include "pgn.syntax.h"
 
 #define RETURN_TOKEN_NEXT(token, next_state) { \
@@ -31,19 +33,19 @@
   \" RETURN_TOKEN_NEXT(QUOTE, TOKENIZE_STRING)
 
   "1-0"|"0-1"|"1/2-1/2"|"*" {
-     yylval->str = strdup(yytext);
+     yylval->str = symboltable_add(env->symbols, yytext);
 
      return RESULT;
    }
 
   [1-9][0-9]*(\.\.\.|\.) {
-    yylval->str = strdup(yytext);
+    yylval->str = symboltable_add(env->symbols, yytext);
 
     return MOVE_NUMBER;
   }
 
   [a-zA-Z0-9\.+#!?\-=]+ {
-    yylval->str = strdup(yytext);
+    yylval->str = symboltable_add(env->symbols, yytext);
 
     return WORD;
   }
@@ -51,7 +53,7 @@
 
 <TOKENIZE_STRING>{
   [^"]+ {
-    yylval->str = strdup(yytext);
+    yylval->str = symboltable_add(env->symbols, yytext);
 
     return STRING;
   }
@@ -60,7 +62,7 @@
 
 <TOKENIZE_VARIATION>{
   [^)]* {
-    yylval->str = strdup(yytext);
+    yylval->str = symboltable_add(env->symbols, yytext);
 
     return STRING;
   }
@@ -72,7 +74,7 @@
   "}" RETURN_TOKEN_NEXT(CLOSE_CURLY, INITIAL)
 
   \[%clk[[:space:]][[:digit:]][[:digit:]]?:[[:digit:]][[:digit:]]:[[:digit:]][[:digit:]]\] {
-    char *str = strdup(yytext + 6);
+    char *str = symboltable_add(env->symbols, yytext + 6);
     size_t len = strlen(str);
 
     str[len - 1] = '\0';
