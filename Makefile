@@ -32,7 +32,7 @@ $(BUILD)/%.o: $(SRC)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 
-$(BINDIR)/tests/%: $(TEST)/%.c
+$(BINDIR)/tests/%: $(TEST)/%.c $(OBJS)
 	mkdir -p $(BINDIR)/tests
 	$(CC) $(CFLAGS) $< $(OBJS) -o $@
 
@@ -56,7 +56,7 @@ clean: $(INCLUDE) $(BUILD) $(BINDIR) $(LIBDIR)
 	rm -f $(TESTBINS)
 
 lint:
-	clang-tidy $(SRC)/*.c $(SRC)/*.h
+	clang-tidy --quiet -header-filter=.* $(SRC)/*.c $(SRC)/*.h -- $(CFLAGS) -fno-caret-diagnostics
 
 compiledb:
 	pip install compiledb
