@@ -56,7 +56,7 @@ clean: $(INCLUDE) $(BUILD) $(BINDIR) $(LIBDIR)
 	rm -f $(TESTBINS)
 
 lint:
-	clang-tidy --quiet -header-filter=.* $(SRC)/*.c $(SRC)/*.h -- $(CFLAGS) -fno-caret-diagnostics
+	clang-tidy --quiet -header-filter=src/.* $(SRC)/*.c $(SRC)/*.h -- $(CFLAGS) -fno-caret-diagnostics
 
 compiledb:
 	pip install compiledb
