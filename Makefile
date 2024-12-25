@@ -4,7 +4,6 @@ RELEASE = release
 LIBDIR = lib
 BINDIR = bin
 INCLUDE = include
-BIN = $(BINDIR)/pgne3k
 LIB = $(LIBDIR)/pgne3k.a
 
 PGN_LEX_H=$(INCLUDE)/pgn.lex.h
@@ -20,20 +19,26 @@ TEST=tests
 TESTS=$(wildcard $(TEST)/*.c) 
 TESTBINS=$(patsubst $(TEST)/%.c,$(BINDIR)/tests/%, $(TESTS))
 
+PROJECT=projects
+PROJECTS=$(wildcard $(PROJECT)/*.c) 
+PROJECTBINS=$(patsubst $(PROJECT)/%.c,$(BINDIR)/%, $(PROJECTS))
+
+TEST_TAGSPEC=projects/pgne3k/specs/quality-lichess.tagspec
+
 CFLAGS=-I$(SRC) -I$(INCLUDE) -Wall -Wextra -Wpedantic -g3
 CC=clang
 
-all: $(BIN) $(TESTBINS)
-
-$(BIN): $(PGN_SYNTAX_H) $(PGN_LEX_H) $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) src/main.c -o $@
+all: $(TESTBINS) $(PROJECTBINS)
 
 $(BUILD)/%.o: $(SRC)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-
 $(BINDIR)/tests/%: $(TEST)/%.c $(OBJS)
 	mkdir -p $(BINDIR)/tests
+	$(CC) $(CFLAGS) $< $(OBJS) -o $@
+
+$(BINDIR)/%: $(PROJECT)/%.c $(OBJS)
+	mkdir -p $(BINDIR)
 	$(CC) $(CFLAGS) $< $(OBJS) -o $@
 
 $(PGN_LEX_H): $(BUILD)/pgn.lex.c
@@ -54,9 +59,10 @@ clean: $(INCLUDE) $(BUILD) $(BINDIR) $(LIBDIR)
 	rm -f $(OBJS)
 	rm -f $(INCLUDE)/pgn.lex.h $(INCLUDE)/pgn.syntax.h
 	rm -f $(TESTBINS)
+	rm -f $(PROJECTBINS)
 
 lint:
-	clang-tidy --quiet -header-filter=src/.* $(SRC)/*.c $(SRC)/*.h -- $(CFLAGS) -fno-caret-diagnostics
+	clang-tidy --quiet -header-filter=$(SRC)/.* $(SRC)/*.c $(SRC)/*.h -- $(CFLAGS) -fno-caret-diagnostics
 
 compiledb:
 	pip install compiledb
@@ -75,11 +81,8 @@ precheck:
 	@make lint
 	@make doc
 
-fuzz: $(BIN)
-	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $(BIN) ./workspace/lichess/lichess-tag-roster.txt < data/test.txt
-
-run: $(BIN)
-	$(BIN) ./workspace/time/roster < data/test.txt
+fuzz: $(PROJECTBINS)
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $(BINDIR)/pgne3k $(TEST_TAGSPEC) < data/test.txt
 
 $(BINDIR):
 	mkdir -p $@
@@ -99,6 +102,12 @@ $(BUILD):
 $(TEST):
 	mkdir -p $@
 
+$(PROJECT):
+	mkdir -p $@
+
 $(BINDIR)/tests:
 	mkdir -p $@
 
+
+$(BINDIR)/projects:
+	mkdir -p $@

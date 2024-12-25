@@ -122,10 +122,10 @@ bool tagspec_parse_line(tagspec_t *spec, const char *line) {
     return true;
 }
 
-void tagspec_load(tagspec_t *spec, FILE *roster_fp) {
+void tagspec_load(tagspec_t *spec, FILE *spec_fp) {
     char *line = NULL;
     size_t line_len;
-    while (getline(&line, &line_len, roster_fp) != -1) {
+    while (getline(&line, &line_len, spec_fp) != -1) {
         assert(tagspec_parse_line(spec, line));
     }
 

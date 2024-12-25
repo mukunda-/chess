@@ -1,19 +1,36 @@
-# Pgne3k
+# Project Mono Repo #00000 - C
 
-Convert Chess games in PGNs to TSVs (CSVs with tabs instead of comas). Used to process Lichess dumps.
+This is part of a long standing meta-project to group my experiments and research projects along the lines of interoperability. 
 
-I use this repository for experiments as well and to 
+What lives here are tools written in C sharing the same core utilities.
 
-# Journal
+## Pgne3k - Chess PGN to TSV Conversion
 
-## 00001 
+Convert Chess games stored in PGNs to TSVs (CSVs with tabs instead of comas). Supports extracting clock times and filtering on minimum ply and tag values.
 
-It currently takes me ~50 minutes to process a 90 million game Lichess dump.
+Supports filtering games based on a "tag specification" which describes what PGN tags to include and what values they are allowed to have for a game to be included.
 
-I expect this number to flucuate wildly as I add features. I will eventually need to make the stats more scientific.
+Here is an example tagspec.
 
-Performance: 30k games per my-current-laptop second, 28k with zstdcat.
+```
+Site
+WhiteElo
+BlackElo
+TimeControl
+Ply > 3
+Result
+WhiteClock
+BlackClock
+WhiteTitle ! BOT
+BlackTitle ! BOT
+Event - Bullet
+Result ! *
+Moves
+```
 
-## 00002
+In addition to including the given tags and pseudo-tags (like "Moves" and "WhiteClock"), the following contract must be satisfied for a game to be printed.
 
-Added clock times to potential outputs. Now output is roster controlled.  ~26k, no zstdcat 
+* More than 3 moves were played.
+* Don't include Lichess Bot accounts.
+* Exclude events with the word "Bullet" in them.
+* Exclude incomplete games.

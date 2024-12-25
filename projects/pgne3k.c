@@ -6,22 +6,22 @@
 
 int main(int argc, char **argv) {
     if (argc != 2) {
-        fprintf(stderr, "Usage: %s <tag roster>\n", argv[0]);
+        fprintf(stderr, "Usage: %s <tag spec>\n", argv[0]);
         return EXIT_FAILURE;
     }
 
     // Open the file in read mode, exit with error if failure to do so
-    const char *roster_path = argv[1];
-    FILE *roster_fp = fopen(roster_path, "r");
-    if (roster_fp == NULL) {
+    const char *spec_path = argv[1];
+    FILE *spec_fp = fopen(spec_path, "r");
+    if (spec_fp == NULL) {
         perror("fopen");
         return EXIT_FAILURE;
     }
 
     frontend_t *env = frontend_new();
 
-    tagspec_load(env->spec, roster_fp);
-    fclose(roster_fp);
+    tagspec_load(env->spec, spec_fp);
+    fclose(spec_fp);
 
     run(env);
 

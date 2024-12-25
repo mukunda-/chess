@@ -40,7 +40,7 @@ void tagspec_add(tagspec_t *spec, const char *name, const char *value,
                  tagcmp_kind_t kind);
 
 /* Load tagspec from file on top of current spec */
-void tagspec_load(tagspec_t *spec, FILE *roster_fp);
+void tagspec_load(tagspec_t *spec, FILE *spec_fp);
 
 /* Parse tagspec line */
 bool tagspec_parse_line(tagspec_t *spec, const char *line);
