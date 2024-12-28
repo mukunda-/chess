@@ -34,7 +34,7 @@ void symboltable_free(symboltable_t *symbols) {
     free(symbols);
 }
 
-const char *symboltable_add(symboltable_t *symbols, const char *raw) {
+char *symboltable_add(symboltable_t *symbols, const char *raw) {
     symbol_t *symbol = malloc(sizeof(symbol_t));
     symbol->raw = strdup(raw);
     symbol->next = NULL;

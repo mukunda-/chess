@@ -65,6 +65,4 @@ board_rank_t board_get_rank(board_t *board, board_piece_t piece,
 board_file_t board_get_file(board_t *board, board_piece_t piece,
                             board_rank_t rank);
 
-void board_move(board_t *board, const char *san);
-
 #endif

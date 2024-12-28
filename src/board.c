@@ -58,4 +58,18 @@ board_piece_t board_get_piece(board_t *board, board_file_t file,
     return board->squares[file][rank];
 }
 
-void board_move(board_t *board, const char *san) {}
+void board_move(void) {
+    /*
+     *
+     * <Piece> ::= 'N' | 'B' | 'R' | 'Q' | 'K'
+     * <Rank> ::= '0' .. '8'
+     * <File> ::= 'a' .. 'h'
+     * <Square> ::= <File><Rank>
+     * <From> ::= <File> | <Rank> | <Square>
+     * <To> ::= Square
+     * <Capture> :: = 'x'
+     * <Piece moves> ::= <Piece><From>[<Capture>]<To>
+     * <Pawn moves> ::= <File>[<Rank>]<Capture><To>[<Promotion>]
+     * <Pawn capture> ::= <To>[<Promotion>]
+     */
+}

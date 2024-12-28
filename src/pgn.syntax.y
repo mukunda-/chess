@@ -78,7 +78,6 @@ moves
 
 move: WORD extra {
     movelist_add(env->games->tail->moves, MOVE_TYPE_MOVE, $1);
-    board_move(env->board, $1);
     env->games->head->ply++;
 }
 

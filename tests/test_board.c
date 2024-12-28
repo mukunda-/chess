@@ -23,10 +23,5 @@ int main(void) {
     assert_true(board_get_file(board, BOARD_PIECE_KNIGHT_WHITE, BOARD_RANK_1) ==
                 BOARD_FILE_B);
 
-    board_move(board, "Nc3");
-
-    assert_true(board->squares[BOARD_FILE_C][BOARD_RANK_3] ==
-                BOARD_PIECE_KNIGHT_WHITE);
-
     test_end();
 }

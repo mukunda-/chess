@@ -18,5 +18,5 @@ symboltable_t *symboltable_new(void);
 void symboltable_free(symboltable_t *symbols);
 
 /* Add a symbol to the symbol table and return a reference to its value. */
-const char *symboltable_add(symboltable_t *symbols, const char *raw);
+char *symboltable_add(symboltable_t *symbols, const char *raw);
 #endif
