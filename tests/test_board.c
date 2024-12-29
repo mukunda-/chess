@@ -23,5 +23,7 @@ int main(void) {
     assert_true(board_get_file(board, BOARD_PIECE_KNIGHT_WHITE, BOARD_RANK_1) ==
                 BOARD_FILE_B);
 
+    board_free(board);
+
     test_end();
 }
