@@ -7,17 +7,15 @@ int main(void) {
     board_t* board = board_new();
     assert_true(board);
 
-    board_set_piece(board, BOARD_FILE_B, BOARD_RANK_1,
-                    BOARD_PIECE_KNIGHT_WHITE);
+    board_set_piece(board, SQUARE_B1, SQUARE_KNIGHT_WHITE);
 
-    assert_true(board_get_piece(board, BOARD_FILE_B, BOARD_RANK_1) ==
-                BOARD_PIECE_KNIGHT_WHITE);
+    assert_true(board_get_piece(board, SQUARE_B1) == SQUARE_KNIGHT_WHITE);
 
-    assert_true(board_get_rank(board, BOARD_PIECE_KNIGHT_WHITE, BOARD_FILE_B) ==
-                BOARD_RANK_1);
+    assert_true(board_get_rank(board, SQUARE_KNIGHT_WHITE, SQUARE_FILE_B) ==
+                SQUARE_RANK_1);
 
-    assert_true(board_get_file(board, BOARD_PIECE_KNIGHT_WHITE, BOARD_RANK_1) ==
-                BOARD_FILE_B);
+    assert_true(board_get_file(board, SQUARE_KNIGHT_WHITE, SQUARE_RANK_1) ==
+                SQUARE_FILE_B);
 
     board_free(board);
 

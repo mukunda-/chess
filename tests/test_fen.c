@@ -17,10 +17,8 @@ int main(void) {
     fen_parse(fen, board);
 
     // Kings on their rightful squares
-    assert_true(board_get_piece(board, BOARD_FILE_E, BOARD_RANK_1) ==
-                BOARD_PIECE_KING_WHITE);
-    assert_true(board_get_piece(board, BOARD_FILE_E, BOARD_RANK_8) ==
-                BOARD_PIECE_KING_BLACK);
+    assert_true(board_get_piece(board, SQUARE_E1) == SQUARE_KING_WHITE);
+    assert_true(board_get_piece(board, SQUARE_E8) == SQUARE_KING_BLACK);
 
     // Convert back to FEN and compare
     char* built_fen = NULL;
