@@ -6,36 +6,27 @@
 
 board_t *board_new(void) {
     board_t *board = malloc(sizeof(board_t));
-    for (size_t i = 0; i < BOARD_RANK_COUNT; i++) {
-        for (size_t j = 0; j < BOARD_FILE_COUNT; j++) {
-            board->squares[i][j] = BOARD_PIECE_EMPTY;
-        }
+    for (size_t i = 0; i < BOARD_SQUARE_COUNT; i++) {
+        board->squares[i] = BOARD_PIECE_EMPTY;
     }
+
+    board->turn = WHITE;
 
     return board;
 }
 
 void board_free(board_t *board) { free(board); }
 
-void board_print(board_t *board) {
-    for (int i = 0; i < BOARD_FILE_COUNT; i++) {
-        for (int j = 0; j < BOARD_RANK_COUNT; j++) {
-            printf("%d ", board->squares[i][j]);
-        }
-        printf("\n");
-    }
-}
-
 void board_set_piece(board_t *board, board_file_t file, board_rank_t rank,
                      board_piece_t piece) {
-    board->squares[file][rank] = piece;
+    board->squares[file + (rank * BOARD_RANK_COUNT)] = piece;
 }
 
 board_rank_t board_get_rank(board_t *board, board_piece_t piece,
                             board_file_t file) {
-    for (int i = 0; i < BOARD_RANK_COUNT; i++) {
-        if (board->squares[file][i] == piece) {
-            return i;
+    for (int rank = 0; rank < BOARD_RANK_COUNT; rank++) {
+        if (board->squares[file + (rank * BOARD_RANK_COUNT)] == piece) {
+            return rank;
         }
     }
 
@@ -44,9 +35,9 @@ board_rank_t board_get_rank(board_t *board, board_piece_t piece,
 
 board_file_t board_get_file(board_t *board, board_piece_t piece,
                             board_rank_t rank) {
-    for (int i = 0; i < BOARD_FILE_COUNT; i++) {
-        if (board->squares[i][rank] == piece) {
-            return i;
+    for (int file = 0; file < BOARD_FILE_COUNT; file++) {
+        if (board->squares[file + (rank * BOARD_RANK_COUNT)] == piece) {
+            return file;
         }
     }
 
@@ -55,7 +46,7 @@ board_file_t board_get_file(board_t *board, board_piece_t piece,
 
 board_piece_t board_get_piece(board_t *board, board_file_t file,
                               board_rank_t rank) {
-    return board->squares[file][rank];
+    return board->squares[file + (rank * BOARD_RANK_COUNT)];
 }
 
 void board_move(void) {

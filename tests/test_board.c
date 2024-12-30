@@ -1,4 +1,3 @@
-
 #include "board.h"
 #include "test.h"
 
@@ -10,9 +9,6 @@ int main(void) {
 
     board_set_piece(board, BOARD_FILE_B, BOARD_RANK_1,
                     BOARD_PIECE_KNIGHT_WHITE);
-
-    assert_true(board->squares[BOARD_FILE_B][BOARD_RANK_1] ==
-                BOARD_PIECE_KNIGHT_WHITE);
 
     assert_true(board_get_piece(board, BOARD_FILE_B, BOARD_RANK_1) ==
                 BOARD_PIECE_KNIGHT_WHITE);
@@ -26,4 +22,6 @@ int main(void) {
     board_free(board);
 
     test_end();
+
+    return 0;
 }

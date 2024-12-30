@@ -3,8 +3,14 @@
 
 #define BOARD_RANK_COUNT 8
 #define BOARD_FILE_COUNT 8
+#define BOARD_SQUARE_COUNT BOARD_RANK_COUNT *BOARD_FILE_COUNT
 
-typedef enum board_rank_t {
+typedef enum board_turn {
+    WHITE = 0,
+    BLACK,
+} board_turn_t;
+
+typedef enum board_rank {
     BOARD_RANK_1 = 0,
     BOARD_RANK_2,
     BOARD_RANK_3,
@@ -16,7 +22,7 @@ typedef enum board_rank_t {
     BOARD_RANK_OFF_BOARD,
 } board_rank_t;
 
-typedef enum board_file_t {
+typedef enum board_file {
     BOARD_FILE_A = 0,
     BOARD_FILE_B,
     BOARD_FILE_C,
@@ -28,7 +34,7 @@ typedef enum board_file_t {
     BOARD_FILE_OFF_BOARD,
 } board_file_t;
 
-typedef enum board_piece_t {
+typedef enum board_piece {
     BOARD_PIECE_EMPTY = 0,
     BOARD_PIECE_PAWN_WHITE,
     BOARD_PIECE_PAWN_BLACK,
@@ -44,8 +50,9 @@ typedef enum board_piece_t {
     BOARD_PIECE_KING_BLACK,
 } board_piece_t;
 
-typedef struct board_t {
-    board_piece_t squares[BOARD_FILE_COUNT][BOARD_RANK_COUNT];
+typedef struct board {
+    board_piece_t squares[BOARD_SQUARE_COUNT];
+    board_turn_t turn;
 } board_t;
 
 board_t *board_new(void);
