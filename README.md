@@ -1,8 +1,12 @@
-# Project Mono Repo #00000 - C
+# Research Mono Repo
 
-This is part of a long standing meta-project to group my experiments and research projects along the lines of interoperability. 
+I have decided to live out the remainder of my years meaningfully.
 
-What lives here are tools written in C sharing the same core utilities.
+This is part of a long standing effort to group my research projects.
+
+Eventually I would like to pour the last 10 years of my work as a computer scientist into this repo.
+
+As well as the next 10! (from the date of you reading this - help me live forever).
 
 ## Pgne3k - Chess PGN to TSV Conversion
 
@@ -30,7 +34,7 @@ Moves
 
 In addition to including the given tags and pseudo-tags (like "Moves" and "WhiteClock"), the following contract must be satisfied for a game to be printed.
 
-* More than 3 moves were played.
-* Don't include Lichess Bot accounts.
-* Exclude events with the word "Bullet" in them.
-* Exclude incomplete games.
+- More than 3 moves were played.
+- Don't include Lichess Bot accounts.
+- Exclude events with the word "Bullet" in them.
+- Exclude incomplete games.
