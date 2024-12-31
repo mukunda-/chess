@@ -124,4 +124,8 @@ typedef square_piece_t squares_t[SQUARE_RANK_COUNT * SQUARE_FILE_COUNT];
 
 square_t square_from(square_file_t file, square_rank_t rank);
 
+square_rank_t square_get_rank(square_t square);
+
+square_file_t square_get_file(square_t square);
+
 #endif

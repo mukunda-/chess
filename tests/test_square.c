@@ -230,6 +230,60 @@ int main(void) {
     assert_true(SQUARE_G8 == square_from(SQUARE_FILE_G, SQUARE_RANK_8));
     assert_true(SQUARE_H8 == square_from(SQUARE_FILE_H, SQUARE_RANK_8));
 
+    assert_true(square_get_file(SQUARE_A1) == SQUARE_FILE_A);
+    assert_true(square_get_file(SQUARE_A2) == SQUARE_FILE_A);
+    assert_true(square_get_file(SQUARE_A3) == SQUARE_FILE_A);
+    assert_true(square_get_file(SQUARE_A4) == SQUARE_FILE_A);
+    assert_true(square_get_file(SQUARE_A5) == SQUARE_FILE_A);
+    assert_true(square_get_file(SQUARE_A6) == SQUARE_FILE_A);
+    assert_true(square_get_file(SQUARE_A7) == SQUARE_FILE_A);
+    assert_true(square_get_file(SQUARE_A8) == SQUARE_FILE_A);
+
+    assert_true(square_get_rank(SQUARE_A1) == SQUARE_RANK_1);
+    assert_true(square_get_rank(SQUARE_A2) == SQUARE_RANK_2);
+    assert_true(square_get_rank(SQUARE_A3) == SQUARE_RANK_3);
+    assert_true(square_get_rank(SQUARE_A4) == SQUARE_RANK_4);
+    assert_true(square_get_rank(SQUARE_A5) == SQUARE_RANK_5);
+    assert_true(square_get_rank(SQUARE_A6) == SQUARE_RANK_6);
+    assert_true(square_get_rank(SQUARE_A7) == SQUARE_RANK_7);
+    assert_true(square_get_rank(SQUARE_A8) == SQUARE_RANK_8);
+
+    assert_true(square_get_file(SQUARE_B1) == SQUARE_FILE_B);
+    assert_true(square_get_file(SQUARE_B2) == SQUARE_FILE_B);
+    assert_true(square_get_file(SQUARE_B3) == SQUARE_FILE_B);
+    assert_true(square_get_file(SQUARE_B4) == SQUARE_FILE_B);
+    assert_true(square_get_file(SQUARE_B5) == SQUARE_FILE_B);
+    assert_true(square_get_file(SQUARE_B6) == SQUARE_FILE_B);
+    assert_true(square_get_file(SQUARE_B7) == SQUARE_FILE_B);
+    assert_true(square_get_file(SQUARE_B8) == SQUARE_FILE_B);
+
+    assert_true(square_get_rank(SQUARE_B1) == SQUARE_RANK_1);
+    assert_true(square_get_rank(SQUARE_B2) == SQUARE_RANK_2);
+    assert_true(square_get_rank(SQUARE_B3) == SQUARE_RANK_3);
+    assert_true(square_get_rank(SQUARE_B4) == SQUARE_RANK_4);
+    assert_true(square_get_rank(SQUARE_B5) == SQUARE_RANK_5);
+    assert_true(square_get_rank(SQUARE_B6) == SQUARE_RANK_6);
+    assert_true(square_get_rank(SQUARE_B7) == SQUARE_RANK_7);
+    assert_true(square_get_rank(SQUARE_B8) == SQUARE_RANK_8);
+
+    assert_true(square_get_file(SQUARE_C1) == SQUARE_FILE_C);
+    assert_true(square_get_file(SQUARE_C2) == SQUARE_FILE_C);
+    assert_true(square_get_file(SQUARE_C3) == SQUARE_FILE_C);
+    assert_true(square_get_file(SQUARE_C4) == SQUARE_FILE_C);
+    assert_true(square_get_file(SQUARE_C5) == SQUARE_FILE_C);
+    assert_true(square_get_file(SQUARE_C6) == SQUARE_FILE_C);
+    assert_true(square_get_file(SQUARE_C7) == SQUARE_FILE_C);
+    assert_true(square_get_file(SQUARE_C8) == SQUARE_FILE_C);
+
+    assert_true(square_get_rank(SQUARE_C1) == SQUARE_RANK_1);
+    assert_true(square_get_rank(SQUARE_C2) == SQUARE_RANK_2);
+    assert_true(square_get_rank(SQUARE_C3) == SQUARE_RANK_3);
+    assert_true(square_get_rank(SQUARE_C4) == SQUARE_RANK_4);
+    assert_true(square_get_rank(SQUARE_C5) == SQUARE_RANK_5);
+    assert_true(square_get_rank(SQUARE_C6) == SQUARE_RANK_6);
+    assert_true(square_get_rank(SQUARE_C7) == SQUARE_RANK_7);
+    assert_true(square_get_rank(SQUARE_C8) == SQUARE_RANK_8);
+
     test_end();
 
     return 0;
