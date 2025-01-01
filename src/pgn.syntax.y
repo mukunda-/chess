@@ -8,7 +8,7 @@
 %locations
 
 %param { yyscan_t scanner }
-%param { frontend_t *env }
+%param { pgn_frontend_t *env }
 
 %union {
   const char* str;
@@ -23,27 +23,27 @@
   #include <stdlib.h>
   #include <stddef.h>
 
-  #include "game.h"
-  #include "frontend.h"
+  #include "pgn.h"
+  #include "pgn_frontend.h"
   #include "board.h"
-  #include "tag.h"
+  #include "pgn_tag.h"
   #include "gameclock.h"
 }
 
 %code requires {
-  #include "frontend.h"
+  #include "pgn_frontend.h"
 
   typedef void* yyscan_t;
 
-  #define YY_DECL int yylex(YYSTYPE * yylval_param, YYLTYPE *yyloc, yyscan_t yyscanner, frontend_t *env)
+  #define YY_DECL int yylex(YYSTYPE * yylval_param, YYLTYPE *yyloc, yyscan_t yyscanner, pgn_frontend_t *env)
 }
 
 %code {
-  int yylex(YYSTYPE * yylval_param, YYLTYPE *yyloc, yyscan_t yyscanner, frontend_t *env);
+  int yylex(YYSTYPE * yylval_param, YYLTYPE *yyloc, yyscan_t yyscanner, pgn_frontend_t *env);
 
-  void yyerror(YYLTYPE *yyloc, yyscan_t unused, frontend_t *env,
+  void yyerror(YYLTYPE *yyloc, yyscan_t unused, pgn_frontend_t *env,
              const char *msg);
-  void flush_games(frontend_t *env);
+  void flush_pgns(pgn_frontend_t *env);
 }
 
 %%
@@ -54,9 +54,9 @@ pgns
   ;
 
 pgn: tags moves RESULT {
-    gamelist_add_result(env->games, $3);
+    pgnlist_add_result(env->pgns, $3);
 
-    flush_games(env);
+    flush_pgns(env);
 }
 
 tags
@@ -65,20 +65,20 @@ tags
   ;
 
 tag: OPEN_BRACKET WORD QUOTE STRING QUOTE CLOSE_BRACKET {
-   taglist_add(env->games->tail->tags, $2, $4);
+   taglist_add(env->pgns->tail->tags, $2, $4);
 }
 
 moves
   :
   | moves MOVE_NUMBER move {
-    movelist_add(env->games->tail->moves, MOVE_TYPE_MOVE_NUMBER, $2);
+    pgn_movelist_add(env->pgns->tail->moves, PGN_MOVETYPE_MOVE_NUMBER, $2);
   }
   | moves move
   ;
 
 move: WORD extra {
-    movelist_add(env->games->tail->moves, MOVE_TYPE_MOVE, $1);
-    env->games->head->ply++;
+    pgn_movelist_add(env->pgns->tail->moves, PGN_MOVETYPE_MOVE, $1);
+    env->pgns->head->ply++;
 }
 
 extra
@@ -93,19 +93,19 @@ comment: OPEN_CURLY comment_parts CLOSE_CURLY
 comment_parts
   :
   | comment_parts CLOCK {
-      game_t *game = env->games->tail;
-      if (game->ply % 2 == 0) {
-        gameclock_add(game->clock_black, $2);
+      pgn_t *pgn = env->pgns->tail;
+      if (pgn->ply % 2 == 0) {
+        gameclock_add(pgn->clock_black, $2);
       } else {
-        gameclock_add(game->clock_white, $2);
+        gameclock_add(pgn->clock_white, $2);
       }
 
-      movelist_add(env->games->tail->moves, MOVE_TYPE_CLOCK, $2);
+      pgn_movelist_add(env->pgns->tail->moves, PGN_MOVETYPE_CLOCK, $2);
     }
   ;
 
 variation: OPEN_PAREN STRING CLOSE_PAREN {
-   movelist_add(env->games->tail->moves, MOVE_TYPE_VARIATION, $2);
+   pgn_movelist_add(env->pgns->tail->moves, PGN_MOVETYPE_VARIATION, $2);
 }
 
 %%

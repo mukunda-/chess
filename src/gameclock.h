@@ -3,12 +3,12 @@
 
 #define GAMECLOCK_MINUTE 60
 
-typedef struct timestamp_t {
+typedef struct timestamp {
     int time;
-    struct timestamp_t* next;
+    struct timestamp* next;
 } timestamp_t;
 
-typedef struct gameclock_t {
+typedef struct gameclock {
     timestamp_t* head;
     timestamp_t* tail;
 } gameclock_t;

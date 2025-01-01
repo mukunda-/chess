@@ -1,4 +1,4 @@
-#include "tag.h"
+#include "pgn_tag.h"
 
 #include <assert.h>
 #include <stddef.h>

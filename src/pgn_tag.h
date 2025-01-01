@@ -20,7 +20,7 @@ typedef struct tag_t {
 void taglist_add(taglist_t *tags, const char *name, const char *value);
 
 /* Create a new tag */
-taglist_t *taglist_new();
+taglist_t *taglist_new(void);
 
 /* Dealocate tags and children */
 void taglist_free(taglist_t *tags);

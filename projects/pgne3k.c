@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "app.h"
+#include "pgn_frontend.h"
 
 int main(int argc, char **argv) {
     if (argc != 2) {
@@ -18,14 +18,14 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
     }
 
-    frontend_t *env = frontend_new();
+    pgn_frontend_t *env = pgn_frontend_new();
 
     tagspec_load(env->spec, spec_fp);
     fclose(spec_fp);
 
-    run(env);
+    pgn_frontend_run(env);
 
-    frontend_free(env);
+    pgn_frontend_free(env);
 
     return EXIT_SUCCESS;
 }

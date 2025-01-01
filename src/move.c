@@ -1,50 +1,51 @@
 #include "move.h"
 
-#include <assert.h>
-#include <stddef.h>
 #include <stdlib.h>
-#include <string.h>
 
-movelist_t *movelist_new(void) {
-    movelist_t *moves = malloc(sizeof(struct movelist_t));
+#include "square.h"
 
+movelist_t* movelist_new(void) {
+    movelist_t* moves = malloc(sizeof(movelist_t));
     moves->head = NULL;
-    moves->tail = NULL;
 
     return moves;
 }
 
-void movelist_add(movelist_t *moves, move_type_t kind, const char *value) {
-    struct move_t *move = malloc(sizeof(struct move_t));
-
-    move->next = NULL;
-    move->kind = kind;
-    move->value = strdup(value);
-
-    if (moves->head == NULL) {
-        moves->head = move;
-        moves->tail = move;
-    } else {
-        moves->tail->next = move;
-        moves->tail = moves->tail->next;
-    }
-}
-
-void movelist_free(movelist_t *moves) {
-    if (moves == NULL) {
+void move_free(move_t* move) {
+    if (move == NULL) {
         return;
     }
 
-    struct move_t *head = moves->head;
+    move_free(move->next);
+    free(move);
+}
 
-    while (head != NULL) {
-        struct move_t *next = head->next;
+move_t* move_new(square_t from, square_t to) {
+    move_t* move = malloc(sizeof(move_t));
 
-        free(head->value);
-        free(head);
+    move->next = NULL;
 
-        head = next;
+    move->from = from;
+    move->to = to;
+    move->capture = false;
+
+    return move;
+}
+
+void movelist_free(movelist_t* moves) {
+    move_free(moves->head);
+    free(moves);
+}
+
+void movelist_insert_end(movelist_t* moves, move_t* move) {
+    if (moves->head == NULL) {
+        moves->head = move;
     }
 
-    free(moves);
+    if (moves->tail == NULL) {
+        moves->tail = move;
+    }
+
+    moves->tail->next = move;
+    moves->tail = move;
 }

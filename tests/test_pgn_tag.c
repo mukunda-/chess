@@ -1,4 +1,4 @@
-#include "tag.h"
+#include "pgn_tag.h"
 #include "test.h"
 
 int main(void) {

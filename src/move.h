@@ -1,43 +1,30 @@
-#ifndef MOVELIST_H
-#define MOVELIST_H
+#ifndef MOVE_H
+#define MOVE_H
 
-typedef enum move_type_t {
-    MOVE_TYPE_VARIATION,
-    MOVE_TYPE_MOVE,
-    MOVE_TYPE_MOVE_NUMBER,
-    MOVE_TYPE_CLOCK,
-} move_type_t;
+#include <stdbool.h>
 
-/**
- * In a PGN, each "move" in a move list are actually two moves
- * each followed by move notation and then optionally by
- * variations and comments.
- *
- */
-typedef struct movelist_t {
-    struct move_t *head;
-    struct move_t *tail;
-} movelist_t;
+#include "square.h"
 
-/**
- * Linked list of moves, variations, and comments from a movelist.
- *
- * Each node represents some subset of move, variation, comment.
- * Along, of course, with the next node in the list.
- */
-typedef struct move_t {
-    move_type_t kind;
-    char *value;
-    struct move_t *next;
+typedef struct move {
+    square_t from;
+    square_t to;
+    bool capture;
+    struct move* next;
 } move_t;
 
-/* Allocate a movelist_t */
-movelist_t *movelist_new();
+typedef struct movelist {
+    move_t* head;
+    move_t* tail;
+} movelist_t;
 
-/* Dealocate movelist's memory */
-void movelist_free(movelist_t *moves);
+movelist_t* movelist_new(void);
 
-/* Add move number to movelist_t */
-void movelist_add(movelist_t *moves, move_type_t kind, const char *value);
+void movelist_free(movelist_t* moves);
+
+void movelist_insert_end(movelist_t* moves, move_t* move);
+
+move_t* move_new(square_t from, square_t to);
+
+void move_free(move_t* move);
 
 #endif
