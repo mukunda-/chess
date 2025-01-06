@@ -9,7 +9,8 @@ int main(void) {
     board_t *board = board_new();
     board->squares[SQUARE_E4] = SQUARE_ROOK_WHITE;
 
-    movelist_t *moves = movegen_rook(board, SQUARE_E4);
+    movelist_t *moves = movelist_new();
+    movegen_rook(moves, board, SQUARE_E4);
 
     move_t *move = moves->head;
     assert_true(move);
@@ -21,7 +22,9 @@ int main(void) {
     board->squares[SQUARE_E5] = SQUARE_ROOK_BLACK;
 
     movelist_free(moves);
-    moves = movegen_rook(board, SQUARE_E4);
+    moves = movelist_new();
+
+    movegen_rook(moves, board, SQUARE_E4);
 
     assert_true(movelist_count(moves) == 11);
 
