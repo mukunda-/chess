@@ -18,8 +18,8 @@
  */
 
 typedef enum board_turn {
-    WHITE = 0,
-    BLACK,
+    BLACK = 0,
+    WHITE = 1,
 } board_turn_t;
 
 typedef struct board {
