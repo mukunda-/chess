@@ -1,5 +1,4 @@
-#include <stdlib.h>
-
+#include "board.h"
 #include "move.h"
 #include "movegen.h"
 #include "square.h"
@@ -16,16 +15,18 @@ int main(void) {
     assert_true(move);
     assert_true(move->from == SQUARE_E4);
 
-    int count = 0;
-    while (move != NULL) {
-        count++;
-        move = move->next;
-    }
+    assert_true(movelist_count(moves) == 14);
 
-    printf("\n\n%d\n\n", count);
-    assert_true(count == 14);
+    // Put a pawn in the way
+    board->squares[SQUARE_E5] = SQUARE_ROOK_BLACK;
 
-    free(board);
+    movelist_free(moves);
+    moves = movegen_rook(board, SQUARE_E4);
+
+    assert_true(movelist_count(moves) == 11);
+
+    movelist_free(moves);
+    board_free(board);
 
     test_end();
 }

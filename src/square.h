@@ -5,6 +5,8 @@
 #define SQUARE_FILE_COUNT 8
 #define SQUARE_COUNT 64
 
+extern const char* SQUARE_NAMES[SQUARE_COUNT];
+
 typedef enum square_rank {
     SQUARE_RANK_1 = 0,
     SQUARE_RANK_2,
@@ -101,7 +103,7 @@ typedef enum square {
     SQUARE_H6 = 7 + (5 * SQUARE_RANK_COUNT),
     SQUARE_H7 = 7 + (6 * SQUARE_RANK_COUNT),
     SQUARE_H8 = 7 + (7 * SQUARE_RANK_COUNT),
-
+    SQUARE_OOB = 404,
 } square_t;
 
 typedef enum square_piece {
@@ -118,11 +120,14 @@ typedef enum square_piece {
     SQUARE_QUEEN_BLACK,
     SQUARE_KING_WHITE,
     SQUARE_KING_BLACK,
+    SQUARE_PIECE_COUNT
 } square_piece_t;
 
-typedef square_piece_t squares_t[SQUARE_RANK_COUNT * SQUARE_FILE_COUNT];
+extern const char* PIECE_NAMES[SQUARE_PIECE_COUNT];
 
-square_t square_from(square_file_t file, square_rank_t rank);
+typedef square_piece_t squares_t[SQUARE_COUNT];
+
+square_t square_from(int file, int rank);
 
 square_rank_t square_get_rank(square_t square);
 

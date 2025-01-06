@@ -40,12 +40,18 @@ void movelist_free(movelist_t* moves) {
 void movelist_insert_end(movelist_t* moves, move_t* move) {
     if (moves->head == NULL) {
         moves->head = move;
-    }
-
-    if (moves->tail == NULL) {
         moves->tail = move;
     }
 
     moves->tail->next = move;
     moves->tail = move;
+}
+
+size_t movelist_count(movelist_t* moves) {
+    size_t count = 0;
+    for (move_t* move = moves->head; move != NULL; move = move->next) {
+        count++;
+    }
+
+    return count;
 }

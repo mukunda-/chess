@@ -2,6 +2,7 @@
 #define MOVE_H
 
 #include <stdbool.h>
+#include <stdlib.h>
 
 #include "square.h"
 
@@ -26,5 +27,7 @@ void movelist_insert_end(movelist_t* moves, move_t* move);
 move_t* move_new(square_t from, square_t to);
 
 void move_free(move_t* move);
+
+size_t movelist_count(movelist_t* moves);
 
 #endif

@@ -68,6 +68,8 @@ char from_piece(square_piece_t piece) {
             return 'k';
         case SQUARE_EMPTY:
             return '\0';
+        case SQUARE_PIECE_COUNT:
+            return '\0';
     }
 
     return '\0';

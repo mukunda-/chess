@@ -7,4 +7,8 @@
 
 movelist_t* movegen_rook(board_t* board, square_t from);
 
+movelist_t* movegen_bishop(board_t* board, square_t from);
+
+movelist_t* movegen_queen(board_t* board, square_t from);
+
 #endif
