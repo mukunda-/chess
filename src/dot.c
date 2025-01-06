@@ -8,7 +8,7 @@ void dot_fprint_edge(FILE* out_fp, dot_edge_t edge) {
 
 void dot_fprint_node(FILE* out_fp, dot_node_t node) {
     fprintf(out_fp,
-            "\t%s [fontsize=18 fixedsize=true shape=circle label=\"%s\" "
+            "\t%s [fontsize=28 fixedsize=true shape=circle label=\"%s\" "
             "pos=\"%d,%d\" "
             "pin=true]\n",
             node.id, node.label, node.pos_x, node.pos_y);
