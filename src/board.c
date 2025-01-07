@@ -6,13 +6,13 @@
 
 #include "square.h"
 
-board_t *board_new(void) {
+board_t *board_new(board_turn_t turn) {
     board_t *board = malloc(sizeof(board_t));
     for (size_t i = 0; i < SQUARE_COUNT; i++) {
         board->squares[i] = SQUARE_EMPTY;
     }
 
-    board->turn = WHITE;
+    board->turn = turn;
 
     return board;
 }

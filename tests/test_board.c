@@ -4,7 +4,7 @@
 int main(void) {
     test_start("board.h");
 
-    board_t* board = board_new();
+    board_t* board = board_new(WHITE);
     assert_true(board);
 
     board_set_piece(board, SQUARE_B1, SQUARE_KNIGHT_WHITE);

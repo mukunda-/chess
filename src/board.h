@@ -27,7 +27,7 @@ typedef struct board {
     board_turn_t turn;
 } board_t;
 
-board_t *board_new(void);
+board_t *board_new(board_turn_t turn);
 
 void board_free(board_t *board);
 

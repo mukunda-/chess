@@ -19,4 +19,6 @@ void movegen_king(movelist_t* moves_out, board_t* board, square_t from);
 
 void movegen_knight(movelist_t* moves_out, board_t* board, square_t from);
 
+movelist_t* movegen_subgraph(movelist_t* moves, square_t center);
+
 #endif

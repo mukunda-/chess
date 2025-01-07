@@ -6,7 +6,7 @@
 
 int main(void) {
     test_start("movegen.h");
-    board_t *board = board_new();
+    board_t *board = board_new(WHITE);
     board->squares[SQUARE_E4] = SQUARE_ROOK_WHITE;
 
     movelist_t *moves = movelist_new();

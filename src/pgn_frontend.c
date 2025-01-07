@@ -18,7 +18,7 @@ pgn_frontend_t *pgn_frontend_new(void) {
     env->pgns = pgnlist_new();
     env->spec = tagspec_new();
     env->symbols = symboltable_new();
-    env->board = board_new();
+    env->board = board_new(WHITE);
 
     return env;
 }

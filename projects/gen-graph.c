@@ -8,7 +8,7 @@
 #include "movegen.h"
 #include "square.h"
 
-void fprint_edges(FILE* out_fp, board_t* board, movelist_t* moves) {
+void fprint_edges(FILE* out_fp, movelist_t* moves) {
     for (move_t* move = moves->head; move != NULL; move = move->next) {
         const char* from = SQUARE_NAMES[move->from];
         const char* to = SQUARE_NAMES[move->to];
@@ -28,7 +28,7 @@ int main(int argc, const char** argv) {
 
     const char* fen = argv[1];
 
-    board_t* board = board_new();
+    board_t* board = board_new(WHITE);
 
     fen_parse(fen, board);
 
@@ -47,22 +47,18 @@ int main(int argc, const char** argv) {
     }
 
     movelist_t* moves = movelist_new();
-    if (movegen(moves, board, WHITE)) {
-        fprint_edges(out_fp, board, moves);
-    } else {
-        fprintf(stderr, "No legal moves!");
-    }
-    movelist_free(moves);
+    movegen(moves, board, WHITE);
+    movegen(moves, board, BLACK);
 
-    moves = movelist_new();
-    if (movegen(moves, board, BLACK)) {
-        fprint_edges(out_fp, board, moves);
-    } else {
-        fprintf(stderr, "No legal moves!");
-    }
-    movelist_free(moves);
+    movelist_t* subgraph = movegen_subgraph(moves, SQUARE_G8);
+    fprint_edges(out_fp, subgraph);
+    movelist_free(subgraph);
+
+    // fprint_edges(out_fp, moves);
 
     dot_fprint_end(out_fp);
+
+    movelist_free(moves);
 
     return EXIT_SUCCESS;
 }

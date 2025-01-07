@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "board.h"
+#include "dot.h"
 #include "move.h"
 #include "square.h"
 
@@ -74,6 +75,20 @@ bool movegen(movelist_t* out_moves, board_t* board, board_turn_t turn) {
     }
 
     return out_moves->head != NULL;
+}
+
+movelist_t* movegen_subgraph(movelist_t* moves, square_t center) {
+    movelist_t* out = movelist_new();
+
+    square_t to_squares[SQUARE_COUNT];
+    square_t from_squares[SQUARE_COUNT];
+
+    for (move_t* edge = moves->head; edge != NULL; edge = edge->next) {
+        to_squares[edge->from] = edge->to;
+        from_squares[edge->to] = edge->from;
+    }
+
+    return out;
 }
 
 void movegen_bishop(movelist_t* moves_out, board_t* board, square_t from) {

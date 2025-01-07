@@ -30,4 +30,6 @@ void move_free(move_t* move);
 
 size_t movelist_count(movelist_t* moves);
 
+void movelist_remove_start(movelist_t* moves);
+
 #endif

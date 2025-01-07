@@ -8,7 +8,7 @@
 int main(void) {
     test_start("fen.h");
 
-    board_t* board = board_new();
+    board_t* board = board_new(WHITE);
     assert_true(board);
 
     const char* fen =

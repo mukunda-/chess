@@ -55,3 +55,29 @@ size_t movelist_count(movelist_t* moves) {
 
     return count;
 }
+
+void movelist_remove_start(movelist_t* moves) {
+    if (moves->head == NULL) {
+        return;
+    }
+
+    if (moves->head == moves->tail) {
+        move_free(moves->head);
+        moves->head = NULL;
+        moves->tail = NULL;
+
+        return;
+    }
+
+    move_t* old_head = moves->head;
+    move_t* head = old_head->next;
+
+    old_head->next = NULL;
+    move_free(old_head);
+
+    if (head->next == NULL) {
+        moves->tail = head;
+    }
+
+    moves->head = head;
+}
