@@ -1,7 +1,7 @@
 Ply > 3
 WhiteTitle ! BOT
 BlackTitle ! BOT
-TimeControl
+TimeControl = 1800+20
 Moves
 WhiteClock
 BlackClock

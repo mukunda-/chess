@@ -126,7 +126,7 @@ void fen_parse(const char *fen, board_t *board) {
     while (*fen != '\0') {
         char c = *(fen++);
         if (c == ' ') {
-            return;
+            break;
         }
 
         if (c == '/') {
@@ -148,5 +148,11 @@ void fen_parse(const char *fen, board_t *board) {
             board_set_piece(board, square_from(file, rank), piece);
             idx++;
         }
+    }
+
+    if (*fen == 'w') {
+        board->turn = WHITE;
+    } else if (*fen == 'b') {
+        board->turn = BLACK;
     }
 }

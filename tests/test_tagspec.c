@@ -4,29 +4,47 @@
 #include "tagspec.h"
 #include "test.h"
 
-int main(void) {
-    test_start("tagspec_t");
-
+void test_match(void) {
     tagspec_t* spec = tagspec_new();
-    assert_true(spec);
+    tagspec_parse_line(spec, "Site");
+    tagspec_parse_line(spec, "WhiteElo");
+    tagspec_parse_line(spec, "BlackElo");
+    tagspec_parse_line(spec, "Ply > 3");
+    tagspec_parse_line(spec, "WhiteClock");
+    tagspec_parse_line(spec, "BlackClock");
+    tagspec_parse_line(spec, "WhiteTitle ! BOT");
+    tagspec_parse_line(spec, "BlackTitle ! BOT");
+    tagspec_parse_line(spec, "Event - Bullet");
+    tagspec_parse_line(spec, "Result ! *");
+    tagspec_parse_line(spec, "TimeControl = 600+30");
+    // tagspec_parse_line(spec, "TimeControl = 900+30");
 
-    tagspec_add(spec, "WhiteTitle", "BOT", TAG_NOT_EQUALS);
-    assert_true(strcmp(spec->head->name, "WhiteTitle") == 0);
-    assert_true(spec->head->kind == TAG_NOT_EQUALS);
-    assert_true(strcmp(spec->head->value, "BOT") == 0);
+    assert_true(tagspec_matches(spec, "Ply", "4"));
+    assert_true(!tagspec_matches(spec, "Ply", "3"));
 
-    assert_true(tagspec_matches(spec, "WhiteTitle", "Real hooman"));
-    assert_true(tagspec_matches(spec, "unrelated tag", "blorp"));
-    assert_true(tagspec_matches(spec, "unrelated tag", "BOT"));
+    assert_true(tagspec_matches(spec, "WhiteTitle", "HUMAN"));
     assert_true(!tagspec_matches(spec, "WhiteTitle", "BOT"));
 
-    tagspec_add(spec, "BlackTitle", "BOT", TAG_NOT_EQUALS);
-    assert_true(spec->head->next != NULL);
-    assert_true(spec->head != spec->tail);
+    assert_true(tagspec_matches(spec, "Event", "Classical Event"));
+    assert_true(!tagspec_matches(spec, "Event", "Bullet Event"));
+
+    assert_true(tagspec_matches(spec, "TimeControl", "600+30"));
+    assert_true(!tagspec_matches(spec, "TimeControl", "100+0"));
+
+    tagspec_free(spec);
+}
+
+void test_parse(void) {
+    tagspec_t* spec = tagspec_new();
+    assert_true(spec);
 
     assert_true(tagspec_parse_line(spec, "Result ! *"));
     assert_true(spec->tail->kind == TAG_NOT_EQUALS);
     assert_true(strcmp(spec->tail->value, "*") == 0);
+
+    assert_true(tagspec_parse_line(spec, "TimeControl = 600+30"));
+    assert_true(spec->tail->kind == TAG_EQUALS);
+    assert_true(strcmp(spec->tail->value, "600+30") == 0);
 
     assert_true(tagspec_parse_line(spec, "Site      "));
     assert_true(spec->tail->kind == TAG_ALWAYS);
@@ -36,11 +54,15 @@ int main(void) {
     assert_true(tagspec_parse_line(spec, "Ply > 2"));
     assert_true(spec->tail->kind == TAG_GREATER_THAN);
     assert_true(strcmp(spec->tail->value, "2") == 0);
-    assert_true(tagspec_matches(spec, "Ply", "3"));
-    assert_true(!tagspec_matches(spec, "Ply", "2"));
-    assert_true(!tagspec_matches(spec, "Ply", "1"));
 
     tagspec_free(spec);
+}
+
+int main(void) {
+    test_start("tagspec.h");
+
+    test_parse();
+    test_match();
 
     test_end();
 }

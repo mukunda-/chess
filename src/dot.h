@@ -13,6 +13,7 @@ typedef struct dot_node {
 typedef struct dot_edge {
     const char* a;
     const char* b;
+    const char* color;
 } dot_edge_t;
 
 void dot_fprint_edge(FILE* out_fp, dot_edge_t edge);

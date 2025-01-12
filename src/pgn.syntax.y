@@ -35,7 +35,7 @@
 
   typedef void* yyscan_t;
 
-  #define YY_DECL int yylex(YYSTYPE * yylval_param, yyscan_t yyscanner, pgn_frontend_t *env)
+  #define YY_DECL int yylex(YYSTYPE * yylval_param, YYLTYPE *yyloc, yyscan_t yyscanner, pgn_frontend_t *env)
 }
 
 %code {
