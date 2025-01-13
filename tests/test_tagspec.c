@@ -41,15 +41,16 @@ void test_parse(void) {
     assert_true(tagspec_parse_line(spec, "Result ! *"));
     assert_true(spec->tail->kind == TAG_NOT_EQUALS);
     assert_true(strcmp(spec->tail->value, "*") == 0);
+    assert_true(strcmp(spec->order_tail->name, "Result") == 0);
+    assert_true(spec->order_head == spec->order_tail);
 
     assert_true(tagspec_parse_line(spec, "TimeControl = 600+30"));
     assert_true(spec->tail->kind == TAG_EQUALS);
     assert_true(strcmp(spec->tail->value, "600+30") == 0);
 
     assert_true(tagspec_parse_line(spec, "Site      "));
-    assert_true(spec->tail->kind == TAG_ALWAYS);
-    assert_true(strcmp(spec->tail->name, "Site") == 0);
-    assert_true(spec->tail->value == NULL);
+    assert_true(strcmp(spec->order_tail->name, "Site") == 0);
+    assert_true(strcmp(spec->tail->name, "Site") != 0);
 
     assert_true(tagspec_parse_line(spec, "Ply > 2"));
     assert_true(spec->tail->kind == TAG_GREATER_THAN);

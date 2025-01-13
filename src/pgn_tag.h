@@ -27,4 +27,5 @@ void taglist_free(taglist_t *tags);
 
 /* Prune and expand taglist to match tagspec */
 taglist_t *taglist_new_aligned(taglist_t *tags, tagspec_t *spec);
+
 #endif

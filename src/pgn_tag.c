@@ -67,11 +67,12 @@ void taglist_free(taglist_t *tags) {
 taglist_t *taglist_new_aligned(taglist_t *tags, tagspec_t *spec) {
     taglist_t *aligned_tags = taglist_new();
 
-    for (tagcmp_t *cmp = spec->head; cmp != NULL; cmp = cmp->next) {
+    for (tagorder_t *order = spec->order_head; order != NULL;
+         order = order->next) {
         // Find the tag corresponding to the comparior
         bool found = false;
         for (tag_t *tag = tags->head; tag != NULL; tag = tag->next) {
-            if (strcmp(cmp->name, tag->name) == 0) {
+            if (strcmp(order->name, tag->name) == 0) {
                 taglist_add(aligned_tags, tag->name, tag->value);
                 found = true;
                 break;
@@ -79,7 +80,7 @@ taglist_t *taglist_new_aligned(taglist_t *tags, tagspec_t *spec) {
         }
 
         if (!found) {
-            taglist_add(aligned_tags, cmp->name, NULL);
+            taglist_add(aligned_tags, order->name, NULL);
         }
     }
 

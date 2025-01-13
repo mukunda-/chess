@@ -24,20 +24,47 @@ tagcmp_t *tagcmp_new(const char *name, const char *value, tagcmp_kind_t kind) {
     return tag;
 }
 
-void tagspec_add(tagspec_t *spec, const char *name, const char *value,
-                 tagcmp_kind_t kind) {
-    tagcmp_t *cmp = tagcmp_new(name, value, kind);
+tagorder_t *tagorder_new(const char *name) {
+    tagorder_t *tag = malloc(sizeof(tagorder_t));
 
-    if (spec->head == NULL || spec->tail == NULL) {
-        spec->head = cmp;
-        spec->tail = cmp;
-    } else {
-        spec->tail->next = cmp;
-        spec->tail = spec->tail->next;
+    tag->name = strdup(name);
+    tag->next = NULL;
+
+    return tag;
+}
+
+void tagorder_free(tagorder_t *tag) {
+    if (tag == NULL) {
+        return;
     }
 
-    if (spec->head == NULL) {
-        spec->head = spec->tail;
+    tagorder_free(tag->next);
+    free(tag->name);
+    free(tag);
+}
+
+void tagspec_add(tagspec_t *spec, const char *name, const char *value,
+                 tagcmp_kind_t kind) {
+    if (kind != TAG_ALWAYS) {
+        tagcmp_t *cmp = tagcmp_new(name, value, kind);
+
+        if (spec->head == NULL) {
+            spec->head = cmp;
+            spec->tail = cmp;
+        } else {
+            spec->tail->next = cmp;
+            spec->tail = spec->tail->next;
+        }
+    }
+
+    tagorder_t *tag = tagorder_new(name);
+
+    if (spec->order_head == NULL) {
+        spec->order_head = tag;
+        spec->order_tail = tag;
+    } else {
+        spec->order_tail->next = tag;
+        spec->order_tail = spec->order_tail->next;
     }
 }
 
@@ -46,6 +73,9 @@ tagspec_t *tagspec_new(void) {
 
     tags->head = NULL;
     tags->tail = NULL;
+
+    tags->order_head = NULL;
+    tags->order_tail = NULL;
 
     return tags;
 }
@@ -68,6 +98,7 @@ void tagspec_free(tagspec_t *spec) {
     }
 
     tagcmp_free(spec->head);
+    tagorder_free(spec->order_head);
 
     free(spec);
 }

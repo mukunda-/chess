@@ -14,20 +14,27 @@ typedef enum {
     TAG_UNKNOWN_OP,
 } tagcmp_kind_t;
 
-typedef struct tagspec_t {
-    struct tagcmp_t *head;
-    struct tagcmp_t *tail;
-} tagspec_t;
+typedef struct tagorder {
+    char *name;
+    struct tagorder *next;
+} tagorder_t;
 
-typedef struct tagcmp_t {
+typedef struct tagcmp {
     tagcmp_kind_t kind;
     char *name;
     char *value;
-    struct tagcmp_t *next;
+    struct tagcmp *next;
 } tagcmp_t;
 
+typedef struct tagspec {
+    tagcmp_t *head;
+    tagcmp_t *tail;
+    tagorder_t *order_head;
+    tagorder_t *order_tail;
+} tagspec_t;
+
 /* Create a new tag */
-tagspec_t *tagspec_new();
+tagspec_t *tagspec_new(void);
 
 /* Dealocate tags and children */
 void tagspec_free(tagspec_t *spec);
