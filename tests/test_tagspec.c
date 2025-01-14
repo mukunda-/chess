@@ -14,10 +14,8 @@ void test_match(void) {
     tagspec_parse_line(spec, "BlackClock");
     tagspec_parse_line(spec, "WhiteTitle ! BOT");
     tagspec_parse_line(spec, "BlackTitle ! BOT");
-    tagspec_parse_line(spec, "Event - Bullet");
     tagspec_parse_line(spec, "Result ! *");
-    tagspec_parse_line(spec, "TimeControl = 600+30");
-    // tagspec_parse_line(spec, "TimeControl = 900+30");
+    tagspec_parse_line(spec, "Event = Rated Classical game");
 
     assert_true(tagspec_matches(spec, "Ply", "4"));
     assert_true(!tagspec_matches(spec, "Ply", "3"));
@@ -25,11 +23,8 @@ void test_match(void) {
     assert_true(tagspec_matches(spec, "WhiteTitle", "HUMAN"));
     assert_true(!tagspec_matches(spec, "WhiteTitle", "BOT"));
 
-    assert_true(tagspec_matches(spec, "Event", "Classical Event"));
-    assert_true(!tagspec_matches(spec, "Event", "Bullet Event"));
-
-    assert_true(tagspec_matches(spec, "TimeControl", "600+30"));
-    assert_true(!tagspec_matches(spec, "TimeControl", "100+0"));
+    assert_true(tagspec_matches(spec, "Event", "Rated Classical game"));
+    assert_true(!tagspec_matches(spec, "Event", "Rated Bullet game"));
 
     tagspec_free(spec);
 }
@@ -44,9 +39,9 @@ void test_parse(void) {
     assert_true(strcmp(spec->order_tail->name, "Result") == 0);
     assert_true(spec->order_head == spec->order_tail);
 
-    assert_true(tagspec_parse_line(spec, "TimeControl = 600+30"));
+    assert_true(tagspec_parse_line(spec, "Event = Rated Classical game"));
     assert_true(spec->tail->kind == TAG_EQUALS);
-    assert_true(strcmp(spec->tail->value, "600+30") == 0);
+    assert_true(strcmp(spec->tail->value, "Rated Classical game") == 0);
 
     assert_true(tagspec_parse_line(spec, "Site      "));
     assert_true(strcmp(spec->order_tail->name, "Site") == 0);

@@ -10,18 +10,14 @@
 #include "strutil.h"
 
 tagcmp_t *tagcmp_new(const char *name, const char *value, tagcmp_kind_t kind) {
-    tagcmp_t *tag = malloc(sizeof(tagcmp_t));
+    tagcmp_t *cmp = malloc(sizeof(tagcmp_t));
 
-    tag->name = strdup(name);
-    if (value == NULL) {
-        tag->value = NULL;
-    } else {
-        tag->value = strdup(value);
-    }
-    tag->kind = kind;
-    tag->next = NULL;
+    cmp->name = strdup(name);
+    cmp->value = strdup(value);
+    cmp->kind = kind;
+    cmp->next = NULL;
 
-    return tag;
+    return cmp;
 }
 
 tagorder_t *tagorder_new(const char *name) {
@@ -117,40 +113,33 @@ tagcmp_kind_t tagspec_get_kind(char opperator) {
             return TAG_GREATER_THAN;
     }
 
-    return TAG_UNKNOWN_OP;
+    return TAG_UNKNOWN_CMP;
 }
 
 bool tagspec_parse_line(tagspec_t *spec, const char *line) {
-    char *buf = strdup(line);
-    trim_right(buf);
+    char *name = calloc(200, 1);
+    char *value = calloc(200, 1);
+    char *cmp = calloc(20, 1);
 
-    char *saveptr = NULL;
-    const char *delims = " ";
-    const char *name = strtok_r(buf, delims, &saveptr);
+    sscanf(line, "%[^\t\n ] %[^\t\n ] %[^\n]", name, cmp, value);
 
-    const char *op_raw = strtok_r(NULL, delims, &saveptr);
-    if (op_raw == NULL) {
+    bool success = false;
+    if (name[0] != '\0' && value[0] != '\0') {
+        tagcmp_kind_t kind = tagspec_get_kind(cmp[0]);
+        if (kind != TAG_UNKNOWN_CMP) {
+            tagspec_add(spec, name, value, kind);
+            success = true;
+        }
+    } else if (name[0] != '\0') {
         tagspec_add(spec, name, NULL, TAG_ALWAYS);
-        free(buf);
-        return true;
+        success = true;
     }
 
-    tagcmp_kind_t kind = tagspec_get_kind(op_raw[0]);
-    if (kind == TAG_UNKNOWN_OP) {
-        free(buf);
-        return false;
-    }
+    free(name);
+    free(value);
+    free(cmp);
 
-    const char *value = strtok_r(NULL, delims, &saveptr);
-    if (value == NULL) {
-        free(buf);
-        return false;
-    }
-
-    tagspec_add(spec, name, value, kind);
-    free(buf);
-
-    return true;
+    return success;
 }
 
 void tagspec_load(tagspec_t *spec, FILE *spec_fp) {

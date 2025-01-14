@@ -41,7 +41,21 @@ void print_clock(gameclock_t *clock) {
     }
 }
 
+bool is_kept(tagspec_t *spec, pgn_t *pgn) {
+    for (tag_t *tag = pgn->tags->head; tag != NULL; tag = tag->next) {
+        if (!tagspec_matches(spec, tag->name, tag->value)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 void print_pgn(tagspec_t *spec, pgn_t *pgn) {
+    if (!is_kept(spec, pgn)) {
+        return;
+    }
+
     taglist_t *aligned_tags = taglist_new_aligned(pgn->tags, spec);
     for (tag_t *tag = aligned_tags->head; tag != NULL; tag = tag->next) {
         if (aligned_tags->head != tag) {

@@ -4,15 +4,20 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-typedef enum {
+typedef enum tagcmp_kind {
     TAG_EQUALS = 0,
     TAG_NOT_EQUALS,
     TAG_CONTAINS,
     TAG_GREATER_THAN,
     TAG_NOT_CONTAINS,
     TAG_ALWAYS,
-    TAG_UNKNOWN_OP,
+    TAG_UNKNOWN_CMP,
 } tagcmp_kind_t;
+
+typedef enum tagop_kind {
+    TAG_OP_SPLIT = 0,
+    TAG_OP_UNKNOWN,
+} tagop_kind_t;
 
 typedef struct tagorder {
     char *name;
