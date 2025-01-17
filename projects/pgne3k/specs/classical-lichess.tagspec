@@ -1,0 +1,23 @@
+Black
+BlackClock
+BlackElo
+BlackRatingDiff
+BlackTitle ! BOT
+Date
+ECO
+Event = Rated Classical game
+Moves
+Opening
+Ply > 3
+Result ! *
+Round
+Site
+Termination
+TimeControl
+UTCDate
+UTCTime
+White
+WhiteClock
+WhiteElo
+WhiteRatingDiff
+WhiteTitle ! BOT
