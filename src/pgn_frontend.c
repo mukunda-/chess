@@ -1,6 +1,17 @@
 #include "pgn_frontend.h"
+
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "board.h"
+#include "generation.h"
+#include "pgn.h"
 #include "pgn.lex.h"
 #include "pgn.syntax.h"
+#include "symbol.h"
+
+#define UNUSED(x) (void)(x)
 
 pgn_frontend_t *pgn_frontend_new(void) {
     pgn_frontend_t* env = (pgn_frontend_t*)malloc(sizeof(struct pgn_frontend_t));

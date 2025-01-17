@@ -1,8 +1,6 @@
 #ifndef SQUARE_H
 #define SQUARE_H
 
-#include "global.h"
-
 #define SQUARE_RANK_COUNT 8
 #define SQUARE_FILE_COUNT 8
 #define SQUARE_COUNT 64
@@ -135,4 +133,4 @@ square_rank_t square_get_rank(square_t square);
 
 square_file_t square_get_file(square_t square);
 
-#endif /* SQUARE_H */
+#endif

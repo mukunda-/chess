@@ -1,7 +1,9 @@
 #ifndef MOVE_H
 #define MOVE_H
 
-#include "global.h"
+#include <stdbool.h>
+#include <stdlib.h>
+
 #include "square.h"
 
 typedef struct move {
@@ -30,4 +32,4 @@ size_t movelist_count(movelist_t* moves);
 
 void movelist_remove_start(movelist_t* moves);
 
-#endif /* MOVE_H */
+#endif

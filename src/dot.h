@@ -29,4 +29,4 @@ void dot_fprint_end(FILE* out_fp);
 void dot_fprint_start_sub(FILE* out_fp, const char* name);
 
 void dot_fprint_end_sub(FILE* out_fp);
-#endif /* DOT_H */
+#endif

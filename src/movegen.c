@@ -1,5 +1,13 @@
 #include "movegen.h"
 
+#include <stdbool.h>
+#include <stdio.h>
+
+#include "board.h"
+#include "dot.h"
+#include "move.h"
+#include "square.h"
+
 bool insert_move(movelist_t* moves_out, board_t* board, square_t from,
                  square_t to) {
     if (from == SQUARE_OOB || to == SQUARE_OOB) {

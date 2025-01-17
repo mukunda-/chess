@@ -1,5 +1,8 @@
 #include "gameclock.h"
 
+#include <stdlib.h>
+#include <strings.h>
+
 gameclock_t* gameclock_new(void) {
     gameclock_t* gameclock = (gameclock_t*)malloc(sizeof(gameclock_t));
     assert(gameclock != NULL && "Out of memory");

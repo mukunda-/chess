@@ -1,8 +1,6 @@
 #ifndef SYMBOL_H
 #define SYMBOL_H
 
-#include "global.h"
-
 typedef struct symbol_t {
     char *raw;
     struct symbol_t *next;
@@ -21,5 +19,4 @@ void symboltable_free(symboltable_t *symbols);
 
 /* Add a symbol to the symbol table and return a reference to its value. */
 char *symboltable_add(symboltable_t *symbols, const char *raw);
-
-#endif /* SYMBOL_H */
+#endif

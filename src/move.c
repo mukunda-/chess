@@ -1,5 +1,9 @@
 #include "move.h"
 
+#include <stdlib.h>
+
+#include "square.h"
+
 movelist_t* movelist_new(void) {
     movelist_t* moves = (movelist_t*)malloc(sizeof(movelist_t));
     assert(moves != NULL && "Out of memory");

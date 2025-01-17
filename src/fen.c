@@ -1,5 +1,12 @@
 #include "fen.h"
 
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "board.h"
+#include "square.h"
+
 square_piece_t to_piece(char symbol) {
     square_piece_t result = SQUARE_EMPTY;
     switch (symbol) {

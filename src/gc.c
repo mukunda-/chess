@@ -1,6 +1,14 @@
 #include "gc.h"
 
+#include <assert.h>
+#include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
+
+#include "board.h"
+#include "dot.h"
+#include "move.h"
+#include "square.h"
 
 static const gc_direction_t KING_DIRECTIONS[GC_DIRECTION_COUNT] = {
     GC_DIRECTION_N,  GC_DIRECTION_NE, GC_DIRECTION_E,

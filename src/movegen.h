@@ -1,5 +1,5 @@
-#ifndef MOVEGEN_H
-#define MOVEGEN_H
+#ifndef MOVE_GEN_H
+#define MOVE_GEN_H
 
 #include "board.h"
 #include "global.h"
@@ -22,4 +22,4 @@ void movegen_knight(movelist_t* moves_out, board_t* board, square_t from);
 
 movelist_t* movegen_subgraph(movelist_t* moves, square_t center);
 
-#endif /* MOVEGEN_H */
+#endif

@@ -1,7 +1,6 @@
 #ifndef PGN_H
 #define PGN_H
 
-#include "global.h"
 #include "gameclock.h"
 #include "pgn_move.h"
 #include "pgn_tag.h"
@@ -38,4 +37,4 @@ void pgnlist_free(pgnlist_t *pgns);
  */
 void pgnlist_add_result(pgnlist_t *pgns, const char *result);
 
-#endif /* PGN_H */
+#endif
