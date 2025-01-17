@@ -31,46 +31,23 @@ int main(int argc, const char** argv) {
     // Add edges to graph
     gc_graph_insert_edges(graph, moves);
 
-    // Find the least active piece
-    // Move it somewhere safe
-
-    board_turn_t to_play = board->turn;
-    gc_node_t* worst_piece = NULL;
+    // Center subraph
+    int eval = 0;
     for (gc_edge_t* edge = graph->edges; edge != NULL; edge = edge->next) {
-        gc_node_t* node = edge->a;
-        if ((to_play == WHITE && node->color == GC_NODE_COLOR_WHITE) ||
-            (to_play == BLACK && node->color == GC_NODE_COLOR_BLACK)) {
-            if (worst_piece == NULL) {
-                worst_piece = node;
-            } else if (node->see_count < worst_piece->seen_count) {
-                worst_piece = node;
-            }
+        /*
+\exists c \in \text{opposite color pieces}:
+               c \text{->} b \text{ with weight $> 1$}
+\vee a \text{->} b \text{ with weight 0}
+        */
+        if (edge->a->color == GC_NODE_COLOR_WHITE && edge->b->id == SQUARE_D4) {
+            eval += 1;
+        } else if (edge->a->color == GC_NODE_COLOR_BLACK &&
+                   edge->b->id == SQUARE_D4) {
+            eval -= 1;
         }
     }
 
-    // REDUCE TO EXHAUSTABLE PROPOSITIONS
-    // maybe encapsulated in an enum?
-
-    gc_node_t* best_dest = NULL;
-    for (gc_edge_t* edge = graph->edges; edge != NULL; edge = edge->next) {
-        gc_node_t* piece = edge->a;
-        gc_node_t* dest = edge->b;
-
-        if (piece->id != worst_piece->id) {
-            continue;
-        }
-
-        if (piece->color == GC_NODE_COLOR_WHITE &&
-            dest->seen_white_count <= piece->seen_white_count) {
-            best_dest = dest;
-        } else if (piece->color == GC_NODE_COLOR_BLACK &&
-                   dest->seen_black_count <= piece->seen_black_count) {
-            best_dest = dest;
-        }
-    }
-
-    fprintf(out_fp, "%s%s\n", SQUARE_NAMES[worst_piece->id],
-            SQUARE_NAMES[best_dest->id]);
+    fprintf(out_fp, "eval %d", eval);
 
     // Free resources
     movelist_free(moves);
