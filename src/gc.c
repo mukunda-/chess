@@ -1,5 +1,7 @@
 #include "gc.h"
 
+#include <stdio.h>
+
 static const gc_direction_t KING_DIRECTIONS[GC_DIRECTION_COUNT] = {
     GC_DIRECTION_N,  GC_DIRECTION_NE, GC_DIRECTION_E,
     GC_DIRECTION_SE, GC_DIRECTION_S,  GC_DIRECTION_SW,
@@ -32,7 +34,7 @@ static const gc_direction_t UNIMPLEMENTED_DIRECTIONS[GC_DIRECTION_COUNT] = {
 gc_node_t *gc_node_new(square_t id, gc_node_color_t color, gc_speed_t speed,
                        const gc_direction_t directions[GC_DIRECTION_COUNT],
                        const char *label) {
-    gc_node_t* node = (gc_node_t*)malloc(sizeof(gc_node_t));
+    gc_node_t *node = (gc_node_t *)malloc(sizeof(gc_node_t));
     assert(node != NULL && "Out of memory");
     memset(node, 0, sizeof(gc_node_t));
 
@@ -83,13 +85,15 @@ gc_node_t *gc_node_bishop_new(square_t id, gc_node_color_t color) {
     return gc_node_new(id, color, GC_MANY, BISHOP_DIRECTIONS,
                        color == GC_NODE_COLOR_WHITE ? "♗" : "♝");
 }
+
 gc_node_t *gc_node_empty_new(square_t id, gc_node_color_t color) {
     return gc_node_new(id, color, GC_NONE, EMPTY_DIRECTIONS, SQUARE_NAMES[id]);
 }
+
 void gc_graph_free(gc_graph_t *graph);
 
 gc_graph_t *gc_graph_new(board_t *board) {
-    gc_graph_t* graph = (gc_graph_t*)malloc(sizeof(gc_graph_t));
+    gc_graph_t *graph = (gc_graph_t *)malloc(sizeof(gc_graph_t));
     assert(graph != NULL && "Out of memory");
     memset(graph, 0, sizeof(gc_graph_t));
 
@@ -172,24 +176,35 @@ void gc_fprint_edge(FILE *out_fp, gc_edge_t *edge) {
 void gc_fprint_graph(FILE *out_fp, gc_graph_t *graph) {
     dot_fprint_start(out_fp);
 
+    // White graphs
     bool seen[SQUARE_COUNT] = {false};
     for (gc_edge_t *edge = graph->edges; edge != NULL; edge = edge->next) {
-        if (graph->hits[edge->b->id] < 2 &&
-            edge->b->color == GC_NODE_COLOR_EMPTY) {
-            continue;
+        if ((edge->a->color == GC_NODE_COLOR_WHITE ||
+             edge->a->color == GC_NODE_COLOR_BLACK) &&
+            (edge->b->color == GC_NODE_COLOR_WHITE ||
+             edge->b->color == GC_NODE_COLOR_BLACK)) {
+            gc_fprint_edge(out_fp, edge);
         }
-
-        seen[edge->a->id] = true;
-        seen[edge->b->id] = true;
-
-        gc_fprint_edge(out_fp, edge);
     }
 
+    dot_fprint_start_sub(out_fp, "black");
+    fprintf(out_fp, "label = \"Black\";\n");
     for (square_t i = 0; i < SQUARE_COUNT; i++) {
-        if (seen[i]) {
+        if (graph->nodes[i]->color == GC_NODE_COLOR_BLACK) {
             gc_fprint_node(out_fp, graph->nodes[i]);
         }
     }
+    dot_fprint_end_sub(out_fp);
+
+    dot_fprint_start_sub(out_fp, "white");
+    fprintf(out_fp, "label = \"White\";\n");
+    for (square_t i = 0; i < SQUARE_COUNT; i++) {
+        if (graph->nodes[i]->color == GC_NODE_COLOR_WHITE) {
+            gc_fprint_node(out_fp, graph->nodes[i]);
+        }
+    }
+
+    dot_fprint_end_sub(out_fp);
 
     dot_fprint_end(out_fp);
 }
@@ -202,7 +217,7 @@ void gc_graph_insert_edges(gc_graph_t *graph, movelist_t *moves) {
 
 void gc_graph_insert_edge(gc_graph_t *graph, square_t a, square_t b,
                           int weight) {
-    gc_edge_t* edge = (gc_edge_t*)malloc(sizeof(gc_edge_t));
+    gc_edge_t *edge = (gc_edge_t *)malloc(sizeof(gc_edge_t));
     assert(edge != NULL && "Out of memory");
     memset(edge, 0, sizeof(gc_edge_t));
 

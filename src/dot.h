@@ -1,8 +1,9 @@
 #ifndef DOT_H
 #define DOT_H
 
-#include "global.h"
 #include <stdio.h>
+
+#include "global.h"
 
 typedef struct dot_node {
     const char* id;
@@ -25,4 +26,7 @@ void dot_fprint_start(FILE* out_fp);
 
 void dot_fprint_end(FILE* out_fp);
 
+void dot_fprint_start_sub(FILE* out_fp, const char* name);
+
+void dot_fprint_end_sub(FILE* out_fp);
 #endif /* DOT_H */
