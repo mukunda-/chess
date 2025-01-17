@@ -10,9 +10,7 @@
 #include "strutil.h"
 
 tagcmp_t *tagcmp_new(const char *name, const char *value, tagcmp_kind_t kind) {
-    tagcmp_t* cmp = (tagcmp_t*)malloc(sizeof(tagcmp_t));
-    assert(cmp != NULL && "Out of memory");
-    memset(cmp, 0, sizeof(tagcmp_t));
+    tagcmp_t *cmp = malloc(sizeof(tagcmp_t));
 
     cmp->name = strdup(name);
     cmp->value = strdup(value);
@@ -23,9 +21,7 @@ tagcmp_t *tagcmp_new(const char *name, const char *value, tagcmp_kind_t kind) {
 }
 
 tagorder_t *tagorder_new(const char *name) {
-    tagorder_t* tag = (tagorder_t*)malloc(sizeof(tagorder_t));
-    assert(tag != NULL && "Out of memory");
-    memset(tag, 0, sizeof(tagorder_t));
+    tagorder_t *tag = malloc(sizeof(tagorder_t));
 
     tag->name = strdup(name);
     tag->next = NULL;
@@ -69,9 +65,13 @@ void tagspec_add(tagspec_t *spec, const char *name, const char *value,
 }
 
 tagspec_t *tagspec_new(void) {
-    tagspec_t* tags = (tagspec_t*)malloc(sizeof(tagspec_t));
-    assert(tags != NULL && "Out of memory");
-    memset(tags, 0, sizeof(tagspec_t));
+    tagspec_t *tags = malloc(sizeof(tagspec_t));
+
+    tags->head = NULL;
+    tags->tail = NULL;
+
+    tags->order_head = NULL;
+    tags->order_tail = NULL;
 
     return tags;
 }
@@ -125,15 +125,9 @@ tagcmp_kind_t tagspec_get_kind(char opperator) {
 }
 
 bool tagspec_parse_line(tagspec_t *spec, const char *line) {
-
-    // We must use sizeof(char) since we cannot guarantee it always equals 1 in multyverse.
-    char* name = (char*)calloc(BUFF_SIZE_256, sizeof(char));
-    char* value = (char*)calloc(BUFF_SIZE_256, sizeof(char));
-    char* cmp = (char*)calloc(BUFF_SIZE_32, sizeof(char));
-
-    assert(name != NULL && "Out of memory");
-    assert(value != NULL && "Out of memory");
-    assert(cmp != NULL && "Out of memory");
+    char *name = calloc(200, 1);
+    char *value = calloc(200, 1);
+    char *cmp = calloc(20, 1);
 
     sscanf(line, "%[^\t\n ] %[^\t\n ] %[^\n]", name, cmp, value);
 
