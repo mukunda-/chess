@@ -73,7 +73,7 @@ compile_commands.json: compiledb
 doc:
 	doxygen Doxyfile
 
-test: $(BIN) $(TEST)/bin $(TESTBINS) 
+test: $(BIN) ./bin/$(TEST) $(TESTBINS) 
 	for test in $(TESTBINS) ; do valgrind -q --leak-check=full --show-leak-kinds=all --track-origins=yes $$test ; done
 
 precheck:
