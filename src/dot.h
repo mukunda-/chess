@@ -3,8 +3,6 @@
 
 #include <stdio.h>
 
-#include "global.h"
-
 typedef struct dot_node {
     const char* id;
     const char* label;

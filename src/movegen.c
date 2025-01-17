@@ -59,21 +59,6 @@ bool movegen(movelist_t* out_moves, board_t* board) {
     return out_moves->head != NULL;
 }
 
-movelist_t* movegen_subgraph(movelist_t* moves, square_t center) {
-    UNUSED(center);
-    movelist_t* out = movelist_new();
-
-    square_t to_squares[SQUARE_COUNT];
-    square_t from_squares[SQUARE_COUNT];
-
-    for (move_t* edge = moves->head; edge != NULL; edge = edge->next) {
-        to_squares[edge->from] = edge->to;
-        from_squares[edge->to] = edge->from;
-    }
-
-    return out;
-}
-
 void movegen_bishop(movelist_t* moves_out, board_t* board, square_t from) {
     square_rank_t rank = square_get_rank(from);
     square_file_t file = square_get_file(from);
