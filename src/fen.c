@@ -1,71 +1,95 @@
 #include "fen.h"
 
 square_piece_t to_piece(char symbol) {
+    square_piece_t result = SQUARE_EMPTY;
     switch (symbol) {
         case 'P':
-            return SQUARE_PAWN_WHITE;
+            result = SQUARE_PAWN_WHITE;
+            break;
         case 'p':
-            return SQUARE_PAWN_BLACK;
+            result = SQUARE_PAWN_BLACK;
+            break;
         case 'N':
-            return SQUARE_KNIGHT_WHITE;
+            result = SQUARE_KNIGHT_WHITE;
+            break;
         case 'n':
-            return SQUARE_KNIGHT_BLACK;
+            result = SQUARE_KNIGHT_BLACK;
+            break;
         case 'B':
-            return SQUARE_BISHOP_WHITE;
+            result = SQUARE_BISHOP_WHITE;
+            break;
         case 'b':
-            return SQUARE_BISHOP_BLACK;
+            result = SQUARE_BISHOP_BLACK;
+            break;
         case 'R':
-            return SQUARE_ROOK_WHITE;
+            result = SQUARE_ROOK_WHITE;
+            break;
         case 'r':
-            return SQUARE_ROOK_BLACK;
+            result = SQUARE_ROOK_BLACK;
+            break;
         case 'Q':
-            return SQUARE_QUEEN_WHITE;
+            result = SQUARE_QUEEN_WHITE;
+            break;
         case 'q':
-            return SQUARE_QUEEN_BLACK;
+            result = SQUARE_QUEEN_BLACK;
+            break;
         case 'K':
-            return SQUARE_KING_WHITE;
+            result = SQUARE_KING_WHITE;
+            break;
         case 'k':
-            return SQUARE_KING_BLACK;
-        case '\0':
-            return SQUARE_EMPTY;
+            result = SQUARE_KING_BLACK;
+            break;
+        default:
+            break;
     }
 
-    return SQUARE_EMPTY;
+    return result;
 }
 
 char from_piece(square_piece_t piece) {
+    char result = '\0';
     switch (piece) {
         case SQUARE_PAWN_WHITE:
-            return 'P';
+            result = 'P';
+            break;
         case SQUARE_PAWN_BLACK:
-            return 'p';
+            result = 'p';
+            break;
         case SQUARE_KNIGHT_WHITE:
-            return 'N';
+            result = 'N';
+            break;
         case SQUARE_KNIGHT_BLACK:
-            return 'n';
+            result = 'n';
+            break;
         case SQUARE_BISHOP_WHITE:
-            return 'B';
+            result = 'B';
+            break;
         case SQUARE_BISHOP_BLACK:
-            return 'b';
+            result = 'b';
+            break;
         case SQUARE_ROOK_WHITE:
-            return 'R';
+            result = 'R';
+            break;
         case SQUARE_ROOK_BLACK:
-            return 'r';
+            result = 'r';
+            break;
         case SQUARE_QUEEN_WHITE:
-            return 'Q';
+            result = 'Q';
+            break;
         case SQUARE_QUEEN_BLACK:
-            return 'q';
+            result = 'q';
+            break;
         case SQUARE_KING_WHITE:
-            return 'K';
+            result = 'K';
+            break;
         case SQUARE_KING_BLACK:
-            return 'k';
-        case SQUARE_EMPTY:
-            return '\0';
-        case SQUARE_PIECE_COUNT:
-            return '\0';
+            result = 'k';
+            break;
+        default:
+            break;
     }
 
-    return '\0';
+    return result;
 }
 
 void fen_build(char **fen_out, board_t *board) {

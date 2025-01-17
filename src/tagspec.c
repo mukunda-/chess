@@ -100,20 +100,28 @@ void tagspec_free(tagspec_t *spec) {
 }
 
 tagcmp_kind_t tagspec_get_kind(char opperator) {
+    tagcmp_kind_t result = TAG_UNKNOWN_CMP;
     switch (opperator) {
         case '!':
-            return TAG_NOT_EQUALS;
+            result = TAG_NOT_EQUALS;
+            break;
         case '=':
-            return TAG_EQUALS;
+            result = TAG_EQUALS;
+            break;
         case '-':
-            return TAG_NOT_CONTAINS;
+            result = TAG_NOT_CONTAINS;
+            break;
         case '~':
-            return TAG_CONTAINS;
+            result = TAG_CONTAINS;
+            break;
         case '>':
-            return TAG_GREATER_THAN;
+            result = TAG_GREATER_THAN;
+            break;
+        default:
+            break;
     }
 
-    return TAG_UNKNOWN_CMP;
+    return result;
 }
 
 bool tagspec_parse_line(tagspec_t *spec, const char *line) {
@@ -159,6 +167,7 @@ void tagspec_load(tagspec_t *spec, FILE *spec_fp) {
 }
 
 bool tagspec_matches(tagspec_t *spec, const char *name, const char *value) {
+    bool result = true;
     for (tagcmp_t *cmp = spec->head; cmp != NULL; cmp = cmp->next) {
         if (strcmp(name, cmp->name) != 0) {
             continue;
@@ -166,22 +175,28 @@ bool tagspec_matches(tagspec_t *spec, const char *name, const char *value) {
 
         switch (cmp->kind) {
             case TAG_EQUALS:
-                return strcmp(value, cmp->value) == 0;
+                result = strcmp(value, cmp->value) == 0;
+                break;
             case TAG_NOT_EQUALS:
-                return strcmp(value, cmp->value) != 0;
+                result = strcmp(value, cmp->value) != 0;
+                break;
             case TAG_CONTAINS:
-                return strstr(value, cmp->value) != NULL;
+                result = strstr(value, cmp->value) != NULL;
+                break;
             case TAG_NOT_CONTAINS:
-                return strstr(value, cmp->value) == NULL;
+                result = strstr(value, cmp->value) == NULL;
+                break;
             case TAG_GREATER_THAN:
-                return atoi(value) > atoi(cmp->value);
+                result = atoi(value) > atoi(cmp->value);
+                break;
             case TAG_ALWAYS:
-                return true;
+                result = true;
+                break;
             default:
                 fprintf(stderr, "Unknown operator: %c", cmp->kind);
                 assert(false && "unimplemented");
         }
     }
 
-    return true;
+    return result;
 }
