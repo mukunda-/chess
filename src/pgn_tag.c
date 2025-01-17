@@ -1,7 +1,9 @@
 #include "pgn_tag.h"
 
 tag_t *tag_new(const char *name, const char *value, tag_t *next) {
-    tag_t *tag = malloc(sizeof(tag_t));
+    tag_t* tag = (tag_t*)malloc(sizeof(tag_t));
+    assert(tag != NULL && "Out of memory");
+    memset(tag, 0, sizeof(tag_t));
 
     tag->name = strdup(name);
     if (value != NULL) {
@@ -27,10 +29,9 @@ void taglist_add(taglist_t *tags, const char *name, const char *value) {
 }
 
 taglist_t *taglist_new(void) {
-    taglist_t *tags = malloc(sizeof(taglist_t));
-
-    tags->head = NULL;
-    tags->tail = NULL;
+    taglist_t* tags = (taglist_t*)malloc(sizeof(taglist_t));
+    assert(tags != NULL && "Out of memory");
+    memset(tags, 0, sizeof(taglist_t));
 
     return tags;
 }

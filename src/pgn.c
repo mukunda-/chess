@@ -9,18 +9,15 @@
 #include "pgn_tag.h"
 
 pgn_t *pgn_new(void) {
-    struct pgn_t *pgn = malloc(sizeof(struct pgn_t));
+    struct pgn_t* pgn = (pgn_t*)malloc(sizeof(struct pgn_t));
+    assert(pgn != NULL && "Out of memory");
+    memset(pgn, 0, sizeof(struct pgn_t));
 
-    pgn->result = NULL;
     pgn->tags = taglist_new();
     pgn->moves = pgn_movelist_new();
 
     pgn->clock_white = gameclock_new();
     pgn->clock_black = gameclock_new();
-
-    pgn->ply = 0;
-
-    pgn->next = NULL;
 
     return pgn;
 }
@@ -40,7 +37,9 @@ void pgn_free(struct pgn_t *pgn) {
 }
 
 pgnlist_t *pgnlist_new(void) {
-    pgnlist_t *pgns = malloc(sizeof(pgnlist_t));
+    pgnlist_t* pgns = (pgnlist_t*)malloc(sizeof(pgnlist_t));
+    assert(pgns != NULL && "Out of memory");
+    memset(pgns, 0, sizeof(struct pgnlist_t));
 
     pgns->head = pgn_new();
     pgns->tail = pgns->head;

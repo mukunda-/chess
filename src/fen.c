@@ -69,7 +69,11 @@ char from_piece(square_piece_t piece) {
 }
 
 void fen_build(char **fen_out, board_t *board) {
-    char *fen = malloc(100);
+    // We must use sizeof(char) since we cannot guarantee it always equals 1 in multyverse.
+    char* fen = (char*)malloc(sizeof(char) * BUFF_SIZE_128);
+    assert(fen != NULL && "Out of memory");
+    memset(fen, 0, sizeof(char) * BUFF_SIZE_128);
+
     size_t pos = 0;
 
     for (int rank = SQUARE_RANK_COUNT - 1; rank >= 0; rank--) {

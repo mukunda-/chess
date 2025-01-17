@@ -17,4 +17,9 @@
 // This macros is used to suppress the "Unused arg/var" compilation warning
 #define UNUSED(x) (void)(x)
 
+#define BUFF_SIZE_32   32
+#define BUFF_SIZE_64   64
+#define BUFF_SIZE_128  128
+#define BUFF_SIZE_256  256
+
 #endif /* GLOBAL_H */
