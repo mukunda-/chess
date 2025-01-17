@@ -1,24 +1,19 @@
 #include "pgn_move.h"
 
-#include <assert.h>
-#include <stddef.h>
-#include <stdlib.h>
-#include <string.h>
-
 pgn_movelist_t *pgn_movelist_new(void) {
-    pgn_movelist_t *moves = malloc(sizeof(pgn_movelist_t));
-
-    moves->head = NULL;
-    moves->tail = NULL;
+    pgn_movelist_t* moves = (pgn_movelist_t*)malloc(sizeof(pgn_movelist_t));
+    assert(moves != NULL && "Out of memory");
+    memset(moves, 0, sizeof(pgn_movelist_t));
 
     return moves;
 }
 
 void pgn_movelist_add(pgn_movelist_t *moves, pgn_movetype_t kind,
                       const char *value) {
-    pgn_move_t *move = malloc(sizeof(pgn_move_t));
+    pgn_move_t* move = (pgn_move_t*)malloc(sizeof(pgn_move_t));
+    assert(move != NULL && "Out of memory");
+    memset(move, 0, sizeof(pgn_move_t));
 
-    move->next = NULL;
     move->kind = kind;
     move->value = strdup(value);
 

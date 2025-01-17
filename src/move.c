@@ -1,12 +1,9 @@
 #include "move.h"
 
-#include <stdlib.h>
-
-#include "square.h"
-
 movelist_t* movelist_new(void) {
-    movelist_t* moves = malloc(sizeof(movelist_t));
-    moves->head = NULL;
+    movelist_t* moves = (movelist_t*)malloc(sizeof(movelist_t));
+    assert(moves != NULL && "Out of memory");
+    memset(moves, 0, sizeof(movelist_t));
 
     return moves;
 }
@@ -21,13 +18,12 @@ void move_free(move_t* move) {
 }
 
 move_t* move_new(square_t from, square_t to) {
-    move_t* move = malloc(sizeof(move_t));
-
-    move->next = NULL;
+    move_t* move = (move_t*)malloc(sizeof(move_t));
+    assert(move != NULL && "Out of memory");
+    memset(move, 0, sizeof(move_t));
 
     move->from = from;
     move->to = to;
-    move->capture = false;
 
     return move;
 }

@@ -5,10 +5,9 @@
 #include <string.h>
 
 symboltable_t *symboltable_new(void) {
-    symboltable_t *symbols = malloc(sizeof(symboltable_t));
-
-    symbols->head = NULL;
-    symbols->tail = NULL;
+    symboltable_t* symbols = (symboltable_t*)malloc(sizeof(symboltable_t));
+    assert(symbols != NULL && "Out of memory");
+    memset(symbols, 0, sizeof(symboltable_t));
 
     return symbols;
 }
@@ -35,9 +34,11 @@ void symboltable_free(symboltable_t *symbols) {
 }
 
 char *symboltable_add(symboltable_t *symbols, const char *raw) {
-    symbol_t *symbol = malloc(sizeof(symbol_t));
+    symbol_t* symbol = (symbol_t*)malloc(sizeof(symbol_t));
+    assert(symbol != NULL && "Out of memory");
+    memset(symbol, 0, sizeof(symbol_t));
+
     symbol->raw = strdup(raw);
-    symbol->next = NULL;
 
     if (symbols->head == NULL) {
         assert(symbols->tail == NULL);

@@ -1,8 +1,7 @@
 #ifndef TAGSPEC_H
 #define TAGSPEC_H
 
-#include <stdbool.h>
-#include <stdio.h>
+#include "global.h"
 
 typedef enum tagcmp_kind {
     TAG_EQUALS = 0,
@@ -57,4 +56,4 @@ void tagspec_load(tagspec_t *spec, FILE *spec_fp);
 /* Parse tagspec line */
 bool tagspec_parse_line(tagspec_t *spec, const char *line);
 
-#endif
+#endif /* TAGSPEC_H */

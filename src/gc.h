@@ -1,10 +1,9 @@
 #ifndef GC_H
 #define GC_H
 
-#include <stdio.h>
-#include <stdlib.h>
-
+#include "global.h"
 #include "board.h"
+#include "dot.h"
 #include "move.h"
 #include "square.h"
 
@@ -103,4 +102,4 @@ void gc_free_graph(gc_graph_t *graph);
 
 void gc_fprint_graph(FILE *out_fp, gc_graph_t *graph);
 
-#endif
+#endif /* GC_H */

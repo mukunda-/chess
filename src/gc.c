@@ -1,13 +1,5 @@
 #include "gc.h"
 
-#include <stdbool.h>
-#include <stdio.h>
-
-#include "board.h"
-#include "dot.h"
-#include "move.h"
-#include "square.h"
-
 static const gc_direction_t KING_DIRECTIONS[GC_DIRECTION_COUNT] = {
     GC_DIRECTION_N,  GC_DIRECTION_NE, GC_DIRECTION_E,
     GC_DIRECTION_SE, GC_DIRECTION_S,  GC_DIRECTION_SW,
@@ -40,16 +32,9 @@ static const gc_direction_t UNIMPLEMENTED_DIRECTIONS[GC_DIRECTION_COUNT] = {
 gc_node_t *gc_node_new(square_t id, gc_node_color_t color, gc_speed_t speed,
                        const gc_direction_t directions[GC_DIRECTION_COUNT],
                        const char *label) {
-    gc_node_t *node = malloc(sizeof(gc_node_t));
-
-    node->defended_count = 0;
-    node->defending_count = 0;
-    node->attacked_count = 0;
-    node->attacking_count = 0;
-    node->see_count = 0;
-    node->seen_count = 0;
-    node->seen_white_count = 0;
-    node->seen_black_count = 0;
+    gc_node_t* node = (gc_node_t*)malloc(sizeof(gc_node_t));
+    assert(node != NULL && "Out of memory");
+    memset(node, 0, sizeof(gc_node_t));
 
     node->id = id;
     if (label != NULL) {
@@ -104,9 +89,9 @@ gc_node_t *gc_node_empty_new(square_t id, gc_node_color_t color) {
 void gc_graph_free(gc_graph_t *graph);
 
 gc_graph_t *gc_graph_new(board_t *board) {
-    gc_graph_t *graph = malloc(sizeof(gc_graph_t));
-
-    graph->edges = NULL;
+    gc_graph_t* graph = (gc_graph_t*)malloc(sizeof(gc_graph_t));
+    assert(graph != NULL && "Out of memory");
+    memset(graph, 0, sizeof(gc_graph_t));
 
     for (square_t i = 0; i < SQUARE_COUNT; i++) {
         graph->hits[i] = 0;
@@ -217,7 +202,9 @@ void gc_graph_insert_edges(gc_graph_t *graph, movelist_t *moves) {
 
 void gc_graph_insert_edge(gc_graph_t *graph, square_t a, square_t b,
                           int weight) {
-    gc_edge_t *edge = malloc(sizeof(gc_edge_t));
+    gc_edge_t* edge = (gc_edge_t*)malloc(sizeof(gc_edge_t));
+    assert(edge != NULL && "Out of memory");
+    memset(edge, 0, sizeof(gc_edge_t));
 
     edge->weight = weight;
     edge->a = graph->nodes[a];

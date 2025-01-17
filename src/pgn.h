@@ -1,6 +1,7 @@
 #ifndef PGN_H
 #define PGN_H
 
+#include "global.h"
 #include "gameclock.h"
 #include "pgn_move.h"
 #include "pgn_tag.h"
@@ -27,7 +28,7 @@ typedef struct pgnlist_t {
 } pgnlist_t;
 
 /* Allocate a pgnlist */
-pgnlist_t *pgnlist_new();
+pgnlist_t *pgnlist_new(void);
 
 /* Dealocate memory from all the pgns */
 void pgnlist_free(pgnlist_t *pgns);
@@ -37,4 +38,4 @@ void pgnlist_free(pgnlist_t *pgns);
  */
 void pgnlist_add_result(pgnlist_t *pgns, const char *result);
 
-#endif
+#endif /* PGN_H */
