@@ -28,7 +28,7 @@ typedef struct pgnlist_t {
 } pgnlist_t;
 
 /* Allocate a pgnlist */
-pgnlist_t *pgnlist_new();
+pgnlist_t *pgnlist_new(void);
 
 /* Dealocate memory from all the pgns */
 void pgnlist_free(pgnlist_t *pgns);

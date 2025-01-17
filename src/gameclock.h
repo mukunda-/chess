@@ -15,7 +15,7 @@ typedef struct gameclock {
     timestamp_t* tail;
 } gameclock_t;
 
-gameclock_t* gameclock_new();
+gameclock_t* gameclock_new(void);
 void gameclock_add(gameclock_t* gameclock, const char* h_m_s);
 
 void gameclock_free(gameclock_t* gameclock);

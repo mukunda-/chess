@@ -70,6 +70,7 @@ bool movegen(movelist_t* out_moves, board_t* board, board_turn_t turn) {
 }
 
 movelist_t* movegen_subgraph(movelist_t* moves, square_t center) {
+    UNUSED(center);
     movelist_t* out = movelist_new();
 
     square_t to_squares[SQUARE_COUNT];
