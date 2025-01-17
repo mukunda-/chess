@@ -1,12 +1,12 @@
 #ifndef MOVEGEN_H
 #define MOVEGEN_H
 
-#include "global.h"
 #include "board.h"
+#include "global.h"
 #include "move.h"
 #include "square.h"
 
-bool movegen(movelist_t* moves_out, board_t* board, board_turn_t turn);
+bool movegen(movelist_t* moves_out, board_t* board);
 
 void movegen_rook(movelist_t* moves_out, board_t* board, square_t from);
 

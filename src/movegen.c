@@ -14,9 +14,7 @@ bool insert_move(movelist_t* moves_out, board_t* board, square_t from,
     return !move->capture;
 }
 
-bool movegen(movelist_t* out_moves, board_t* board, board_turn_t turn) {
-    UNUSED(turn);
-
+bool movegen(movelist_t* out_moves, board_t* board) {
     for (size_t i = 0; i < SQUARE_COUNT; i++) {
         square_piece_t piece = board->squares[i];
 

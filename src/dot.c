@@ -14,7 +14,9 @@ void dot_fprint_node(FILE* out_fp, dot_node_t node) {
 }
 
 void dot_fprint_start(FILE* out_fp) {
-    fprintf(out_fp, "digraph {\noverlap=false;\nscale=true;\n");
+    // convert foo.png -gravity center -background white -extent 1000x1000
+    // final.png
+    fprintf(out_fp, "digraph {\nsize=\"10,10!\";dpi=100;\n");
 }
 
 void dot_fprint_start_sub(FILE* out_fp, const char* name) {
