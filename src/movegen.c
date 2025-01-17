@@ -15,54 +15,38 @@ bool insert_move(movelist_t* moves_out, board_t* board, square_t from,
 }
 
 bool movegen(movelist_t* out_moves, board_t* board, board_turn_t turn) {
+    UNUSED(turn);
+
     for (size_t i = 0; i < SQUARE_COUNT; i++) {
         square_piece_t piece = board->squares[i];
-        if (turn == WHITE) {
-            switch (piece) {
-                case SQUARE_KING_WHITE:
-                    movegen_king(out_moves, board, i);
-                    break;
-                case SQUARE_QUEEN_WHITE:
-                    movegen_queen(out_moves, board, i);
-                    break;
-                case SQUARE_BISHOP_WHITE:
-                    movegen_bishop(out_moves, board, i);
-                    break;
-                case SQUARE_KNIGHT_WHITE:
-                    movegen_knight(out_moves, board, i);
-                    break;
-                case SQUARE_ROOK_WHITE:
-                    movegen_rook(out_moves, board, i);
-                    break;
-                case SQUARE_PAWN_WHITE:
-                    movegen_pawn(out_moves, board, i);
-                    break;
-                default:
-                    break;
-            }
-        } else {
-            switch (piece) {
-                case SQUARE_KING_BLACK:
-                    movegen_king(out_moves, board, i);
-                    break;
-                case SQUARE_QUEEN_BLACK:
-                    movegen_queen(out_moves, board, i);
-                    break;
-                case SQUARE_BISHOP_BLACK:
-                    movegen_bishop(out_moves, board, i);
-                    break;
-                case SQUARE_KNIGHT_BLACK:
-                    movegen_knight(out_moves, board, i);
-                    break;
-                case SQUARE_ROOK_BLACK:
-                    movegen_rook(out_moves, board, i);
-                    break;
-                case SQUARE_PAWN_BLACK:
-                    movegen_pawn(out_moves, board, i);
-                    break;
-                default:
-                    break;
-            }
+
+        switch (piece) {
+            case SQUARE_KING_WHITE:
+            case SQUARE_KING_BLACK:
+                movegen_king(out_moves, board, i);
+                break;
+            case SQUARE_QUEEN_WHITE:
+            case SQUARE_QUEEN_BLACK:
+                movegen_queen(out_moves, board, i);
+                break;
+            case SQUARE_BISHOP_WHITE:
+            case SQUARE_BISHOP_BLACK:
+                movegen_bishop(out_moves, board, i);
+                break;
+            case SQUARE_KNIGHT_WHITE:
+            case SQUARE_KNIGHT_BLACK:
+                movegen_knight(out_moves, board, i);
+                break;
+            case SQUARE_ROOK_WHITE:
+            case SQUARE_ROOK_BLACK:
+                movegen_rook(out_moves, board, i);
+                break;
+            case SQUARE_PAWN_WHITE:
+            case SQUARE_PAWN_BLACK:
+                movegen_pawn(out_moves, board, i);
+                break;
+            default:
+                break;
         }
     }
 
