@@ -1,6 +1,7 @@
-#ifndef TAGLIST_H
-#define TAGLIST_H
+#ifndef PGN_TAG_H
+#define PGN_TAG_H
 
+#include "global.h"
 #include "tagspec.h"
 
 typedef struct taglist_t {
@@ -28,4 +29,4 @@ void taglist_free(taglist_t *tags);
 /* Prune and expand taglist to match tagspec */
 taglist_t *taglist_new_aligned(taglist_t *tags, tagspec_t *spec);
 
-#endif
+#endif /* PGN_TAG_H */

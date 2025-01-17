@@ -1,6 +1,8 @@
 #ifndef PGN_MOVE_H
 #define PGN_MOVE_H
 
+#include "global.h"
+
 typedef enum pgn_movetype {
     PGN_MOVETYPE_VARIATION,
     PGN_MOVETYPE_MOVE,
@@ -41,4 +43,4 @@ void pgn_movelist_free(pgn_movelist_t *moves);
 void pgn_movelist_add(pgn_movelist_t *moves, pgn_movetype_t kind,
                       const char *value);
 
-#endif
+#endif /* PGN_MOVE_H */

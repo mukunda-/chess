@@ -1,12 +1,5 @@
 #include "fen.h"
 
-#include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-#include "board.h"
-#include "square.h"
-
 square_piece_t to_piece(char symbol) {
     switch (symbol) {
         case 'P':

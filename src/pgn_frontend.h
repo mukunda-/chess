@@ -1,7 +1,9 @@
 #ifndef PGN_PGN_FRONTEND_H
 #define PGN_PGN_FRONTEND_H
 
+#include "global.h"
 #include "board.h"
+#include "generation.h"
 #include "pgn.h"
 #include "symbol.h"
 #include "tagspec.h"
@@ -21,4 +23,4 @@ void pgn_frontend_free(pgn_frontend_t* env);
 
 void pgn_frontend_run(pgn_frontend_t* env);
 
-#endif
+#endif /* PGN_PGN_FRONTEND_H */

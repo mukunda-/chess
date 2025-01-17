@@ -1,5 +1,7 @@
-#ifndef gameclock_H
-#define gameclock_H
+#ifndef GAMECLOCK_H
+#define GAMECLOCK_H
+
+#include "global.h"
 
 #define GAMECLOCK_MINUTE 60
 
@@ -18,4 +20,4 @@ void gameclock_add(gameclock_t* gameclock, const char* h_m_s);
 
 void gameclock_free(gameclock_t* gameclock);
 
-#endif
+#endif /* GAMECLOCK_H */

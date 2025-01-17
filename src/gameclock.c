@@ -1,8 +1,5 @@
 #include "gameclock.h"
 
-#include <stdlib.h>
-#include <strings.h>
-
 gameclock_t* gameclock_new(void) {
     gameclock_t* gameclock = malloc(sizeof(gameclock_t));
 

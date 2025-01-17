@@ -1,9 +1,5 @@
 #include "move.h"
 
-#include <stdlib.h>
-
-#include "square.h"
-
 movelist_t* movelist_new(void) {
     movelist_t* moves = malloc(sizeof(movelist_t));
     moves->head = NULL;

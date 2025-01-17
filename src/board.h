@@ -1,6 +1,7 @@
 #ifndef BOARD_H
 #define BOARD_H
 
+#include "global.h"
 #include "square.h"
 
 /*
@@ -42,4 +43,4 @@ square_rank_t board_get_rank(board_t *board, square_piece_t piece,
 square_file_t board_get_file(board_t *board, square_piece_t piece,
                              square_rank_t rank);
 
-#endif
+#endif /* BOARD_H */

@@ -1,10 +1,5 @@
 #include "pgn_move.h"
 
-#include <assert.h>
-#include <stddef.h>
-#include <stdlib.h>
-#include <string.h>
-
 pgn_movelist_t *pgn_movelist_new(void) {
     pgn_movelist_t *moves = malloc(sizeof(pgn_movelist_t));
 

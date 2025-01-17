@@ -1,12 +1,5 @@
 #include "pgn_tag.h"
 
-#include <assert.h>
-#include <stddef.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include "tagspec.h"
-
 tag_t *tag_new(const char *name, const char *value, tag_t *next) {
     tag_t *tag = malloc(sizeof(tag_t));
 

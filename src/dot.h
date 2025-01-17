@@ -1,6 +1,7 @@
 #ifndef DOT_H
 #define DOT_H
 
+#include "global.h"
 #include <stdio.h>
 
 typedef struct dot_node {
@@ -24,4 +25,4 @@ void dot_fprint_start(FILE* out_fp);
 
 void dot_fprint_end(FILE* out_fp);
 
-#endif
+#endif /* DOT_H */

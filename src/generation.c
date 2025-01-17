@@ -1,15 +1,5 @@
 #include "generation.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include "gameclock.h"
-#include "pgn.h"
-#include "pgn_move.h"
-#include "pgn_tag.h"
-#include "tagspec.h"
-
 void print_headers(tagspec_t *spec) {
     for (tagorder_t *tag = spec->order_head; tag != NULL; tag = tag->next) {
         printf("%s\t", tag->name);

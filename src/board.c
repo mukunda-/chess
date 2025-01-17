@@ -1,11 +1,5 @@
 #include "board.h"
 
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-#include "square.h"
-
 board_t *board_new(board_turn_t turn) {
     board_t *board = malloc(sizeof(board_t));
     for (size_t i = 0; i < SQUARE_COUNT; i++) {
