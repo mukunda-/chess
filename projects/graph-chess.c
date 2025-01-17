@@ -25,8 +25,7 @@ int main(int argc, const char** argv) {
     gc_graph_t* graph = gc_graph_new(board);
 
     movelist_t* moves = movelist_new();
-    movegen(moves, board, WHITE);
-    movegen(moves, board, BLACK);
+    movegen(moves, board);
 
     // Add edges to graph
     gc_graph_insert_edges(graph, moves);
