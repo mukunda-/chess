@@ -106,6 +106,10 @@ gc_graph_t *gc_graph_new(board_t *board) {
     memset(graph, 0, sizeof(gc_graph_t));
 
     for (square_t i = 0; i < SQUARE_COUNT; i++) {
+        if (board == NULL) {
+            graph->nodes[i] = gc_node_empty_new(i, GC_NODE_COLOR_EMPTY);
+            continue;
+        }
         square_piece_t piece = board->squares[i];
         switch (piece) {
             case SQUARE_KING_WHITE:
