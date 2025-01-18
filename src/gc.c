@@ -106,8 +106,6 @@ gc_graph_t *gc_graph_new(board_t *board) {
     memset(graph, 0, sizeof(gc_graph_t));
 
     for (square_t i = 0; i < SQUARE_COUNT; i++) {
-        graph->hits[i] = 0;
-
         square_piece_t piece = board->squares[i];
         switch (piece) {
             case SQUARE_KING_WHITE:
@@ -185,7 +183,6 @@ void gc_fprint_graph(FILE *out_fp, gc_graph_t *graph) {
     dot_fprint_start(out_fp);
 
     // White graphs
-    bool seen[SQUARE_COUNT] = {false};
     for (gc_edge_t *edge = graph->edges; edge != NULL; edge = edge->next) {
         if ((edge->a->color == GC_NODE_COLOR_WHITE ||
              edge->a->color == GC_NODE_COLOR_BLACK) &&
@@ -219,46 +216,28 @@ void gc_fprint_graph(FILE *out_fp, gc_graph_t *graph) {
 
 void gc_graph_insert_edges(gc_graph_t *graph, movelist_t *moves) {
     for (move_t *move = moves->head; move != NULL; move = move->next) {
-        gc_graph_insert_edge(graph, move->from, move->to, 1);
+        gc_graph_insert_edge(graph, move->from, move->to);
     }
 }
 
-void gc_graph_insert_edge(gc_graph_t *graph, square_t a, square_t b,
-                          int weight) {
+void gc_graph_insert_edge(gc_graph_t *graph, square_t a, square_t b) {
     gc_edge_t *edge = (gc_edge_t *)malloc(sizeof(gc_edge_t));
     assert(edge != NULL && "Out of memory");
     memset(edge, 0, sizeof(gc_edge_t));
 
-    edge->weight = weight;
     edge->a = graph->nodes[a];
     edge->b = graph->nodes[b];
     edge->next = graph->edges;
-
-    graph->hits[edge->a->id]++;
-    graph->hits[edge->b->id]++;
 
     if ((edge->a->color == GC_NODE_COLOR_WHITE &&
          edge->b->color == GC_NODE_COLOR_BLACK) ||
         (edge->b->color == GC_NODE_COLOR_WHITE &&
          edge->a->color == GC_NODE_COLOR_BLACK)) {
         edge->color = GC_EDGE_COLOR_ATTACK;
-        edge->b->attacked_count++;
-        edge->a->attacking_count++;
     } else if (edge->a->color == edge->b->color) {
         edge->color = GC_EDGE_COLOR_DEFENSE;
-        edge->b->defended_count++;
-        edge->a->defending_count++;
     } else {
         edge->color = GC_EDGE_COLOR_NEUTRAL;
-    }
-
-    edge->a->see_count++;
-    edge->b->seen_count++;
-
-    if (edge->a->color == GC_NODE_COLOR_WHITE) {
-        edge->b->seen_white_count++;
-    } else if (edge->a->color == GC_NODE_COLOR_WHITE) {
-        edge->b->seen_black_count++;
     }
 
     graph->edges = edge;
