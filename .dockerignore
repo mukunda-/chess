@@ -1,0 +1,3 @@
+# Don't copy these files into the Docker image.
+build
+.git

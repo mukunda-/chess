@@ -48,7 +48,7 @@ $(BUILD)/pgn.lex.c:
 
 $(PGN_SYNTAX_H): $(BUILD)/pgn.syntax.c
 
-$(BUILD)/pgn.syntax.c:
+$(BUILD)/pgn.syntax.c: $(BUILD) $(INCLUDE)
 	bison $(SRC)/pgn.syntax.y --header=$(PGN_SYNTAX_H) -o $@
 
 clean: $(INCLUDE) $(BUILD) $(BINDIR) $(LIBDIR)
